@@ -28,3 +28,8 @@ report.json
 # Project specific
 /Ver_Cloudtrail/__pycache__/
 /Ver_Cloudtrail/.pytest_cache/
+
+#Terraform
+.terraform/
+*.tfstate
+*.tfstate.backup
