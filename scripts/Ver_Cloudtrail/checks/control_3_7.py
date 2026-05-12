@@ -2,8 +2,8 @@
 CIS 3.7: Ensure VPC Flow Logs are enabled
 """
 import logging
-from config import get_client, get_all_regions, CIS_CONTROLS
-from utils import create_result, error_handler
+from scripts.Ver_Cloudtrail.config import get_client, get_all_regions, CIS_CONTROLS
+from scripts.Ver_Cloudtrail.utils import create_result, error_handler
 
 logger = logging.getLogger(__name__)
 

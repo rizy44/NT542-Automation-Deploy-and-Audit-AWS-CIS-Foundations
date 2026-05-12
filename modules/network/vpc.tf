@@ -138,14 +138,12 @@ resource "aws_route_table" "vpc_a_private" {
 # Routes for Public Route Table
 # ============================================================================
 
-# Route to Internet Gateway
 resource "aws_route" "vpc_a_public_igw" {
   route_table_id         = aws_route_table.vpc_a_public.id
   destination_cidr_block = "0.0.0.0/0"
   gateway_id             = aws_internet_gateway.vpc_a.id
 }
 
-# Route to VPC B via Peering Connection
 resource "aws_route" "vpc_a_public_to_vpc_b" {
   route_table_id            = aws_route_table.vpc_a_public.id
   destination_cidr_block    = var.vpc_b_cidr
@@ -158,7 +156,6 @@ resource "aws_route" "vpc_a_public_to_vpc_b" {
 # Routes for Private Route Table
 # ============================================================================
 
-# Route to VPC B via Peering Connection
 resource "aws_route" "vpc_a_private_to_vpc_b" {
   route_table_id            = aws_route_table.vpc_a_private.id
   destination_cidr_block    = var.vpc_b_cidr
@@ -193,4 +190,15 @@ resource "aws_route_table_association" "vpc_a_private_1" {
 resource "aws_route_table_association" "vpc_a_private_2" {
   subnet_id      = aws_subnet.vpc_a_private_2.id
   route_table_id = aws_route_table.vpc_a_private.id
+}
+
+# ============================================================================
+# VULNERABILITY 2: VPC A Default Security Group
+# ============================================================================
+
+data "aws_security_group" "vpc_a_default" {
+  vpc_id = aws_vpc.vpc_a.id
+  name   = "default"
+
+  depends_on = [aws_vpc.vpc_a]
 }

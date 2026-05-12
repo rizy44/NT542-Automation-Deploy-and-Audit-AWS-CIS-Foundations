@@ -1,9 +1,6 @@
 # ============================================================================
 # VPC Peering Connection
 # ============================================================================
-# VPC Peering connects VPC A (Requester) and VPC B (Accepter).
-# auto_accept_peering is enabled to simplify lab setup.
-# ============================================================================
 
 resource "aws_vpc_peering_connection" "main" {
   vpc_id      = aws_vpc.vpc_a.id
@@ -17,7 +14,6 @@ resource "aws_vpc_peering_connection" "main" {
   )
 }
 
-# Auto-accept the peering connection
 resource "aws_vpc_peering_connection_accepter" "main" {
   vpc_peering_connection_id = aws_vpc_peering_connection.main.id
   auto_accept               = true

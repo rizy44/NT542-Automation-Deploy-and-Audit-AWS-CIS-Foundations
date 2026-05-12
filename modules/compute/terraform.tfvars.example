@@ -1,0 +1,10 @@
+aws_region  = "ap-southeast-1"
+environment = "lab"
+
+project_name = "security-audit"
+instance_type = "t2.micro"
+
+# These values must come from the network module outputs.
+vpc_a_id                 = "vpc-xxxxxxxx"
+vpc_a_public_subnet_1_id = "subnet-xxxxxxxx"
+vpc_a_public_subnet_2_id = "subnet-yyyyyyyy"

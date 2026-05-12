@@ -1,21 +1,21 @@
 """
-CIS 3.9: Ensure S3 object-level logging for READ events is enabled
+CIS 3.8: Ensure S3 object-level logging for WRITE events is enabled
 """
 import logging
-from config import get_client, CIS_CONTROLS
-from utils import create_result, error_handler
+from scripts.Ver_Cloudtrail.config import get_client, CIS_CONTROLS
+from scripts.Ver_Cloudtrail.utils import create_result, error_handler
 
 logger = logging.getLogger(__name__)
 
 @error_handler
-def check_control_3_9(profile_name=None, regions=None):
+def check_control_3_8(profile_name=None, regions=None):
     """
-    Check if S3 object-level logging for READ events is enabled
+    Check if S3 object-level logging for WRITE events is enabled
     
     Verifies:
     - CloudTrail has data events configured
     - Resource type includes S3
-    - ReadWriteType includes ReadOnly or All
+    - ReadWriteType includes WriteOnly or All
     
     Args:
         profile_name: AWS profile name
@@ -24,7 +24,7 @@ def check_control_3_9(profile_name=None, regions=None):
     Returns:
         dict with control result
     """
-    control_id = "3.9"
+    control_id = "3.8"
     control = CIS_CONTROLS[control_id]
     
     try:
@@ -41,12 +41,12 @@ def check_control_3_9(profile_name=None, regions=None):
                 'FAIL',
                 control['severity'],
                 details={"reason": "No CloudTrail trails found"},
-                remediation="Enable S3 object-level logging for READ events"
+                remediation="Enable S3 object-level logging for WRITE events"
             )
         
         all_details = []
-        trails_with_read_logging = []
-        trails_without_read_logging = []
+        trails_with_write_logging = []
+        trails_without_write_logging = []
         
         for trail in trails:
             trail_name = trail.get('Name')
@@ -58,21 +58,21 @@ def check_control_3_9(profile_name=None, regions=None):
                 event_selectors = event_selectors_response.get('EventSelectors', [])
                 data_resources = event_selectors_response.get('EventSelectors', [])[0].get('DataResources', []) if event_selectors else []
                 
-                has_read_logging = False
+                has_write_logging = False
                 
                 for data_resource in data_resources:
                     resource_type = data_resource.get('Type')
                     read_write_type = data_resource.get('Values')
                     
-                    # Check if S3 object logging is enabled with ReadOnly or All
+                    # Check if S3 object logging is enabled with WriteOnly or All
                     if resource_type == 'AWS::S3::Object':
-                        if read_write_type and any(t in ['ReadOnly', 'All'] for t in read_write_type):
-                            has_read_logging = True
+                        if read_write_type and any(t in ['WriteOnly', 'All'] for t in read_write_type):
+                            has_write_logging = True
                 
                 trail_info = {
                     "trail_name": trail_name,
                     "trail_arn": trail_arn,
-                    "has_s3_read_logging": has_read_logging,
+                    "has_s3_write_logging": has_write_logging,
                     "data_resources": [
                         {
                             "type": dr.get('Type'),
@@ -83,10 +83,10 @@ def check_control_3_9(profile_name=None, regions=None):
                 }
                 all_details.append(trail_info)
                 
-                if has_read_logging:
-                    trails_with_read_logging.append(trail_name)
+                if has_write_logging:
+                    trails_with_write_logging.append(trail_name)
                 else:
-                    trails_without_read_logging.append(trail_name)
+                    trails_without_write_logging.append(trail_name)
             
             except Exception as e:
                 logger.warning(f"Could not get event selectors for {trail_name}: {str(e)}")
@@ -95,19 +95,19 @@ def check_control_3_9(profile_name=None, regions=None):
                     "error": str(e)
                 }
                 all_details.append(trail_info)
-                trails_without_read_logging.append(trail_name)
+                trails_without_write_logging.append(trail_name)
         
-        if trails_without_read_logging:
+        if trails_without_write_logging:
             status = 'FAIL'
             details = {
-                "trails_with_read_logging": trails_with_read_logging,
-                "trails_without_read_logging": trails_without_read_logging,
+                "trails_with_write_logging": trails_with_write_logging,
+                "trails_without_write_logging": trails_without_write_logging,
                 "all_trails": all_details
             }
         else:
             status = 'PASS'
             details = {
-                "trails_with_read_logging": trails_with_read_logging,
+                "trails_with_write_logging": trails_with_write_logging,
                 "all_trails": all_details
             }
         
@@ -117,12 +117,12 @@ def check_control_3_9(profile_name=None, regions=None):
             status,
             control['severity'],
             details=details,
-            resource_id=','.join(trails_with_read_logging) if trails_with_read_logging else None,
-            remediation="Enable S3 object-level logging for READ events in all trails" if status == 'FAIL' else None
+            resource_id=','.join(trails_with_write_logging) if trails_with_write_logging else None,
+            remediation="Enable S3 object-level logging for WRITE events in all trails" if status == 'FAIL' else None
         )
     
     except Exception as e:
-        logger.error(f"Error checking control 3.9: {str(e)}")
+        logger.error(f"Error checking control 3.8: {str(e)}")
         return create_result(
             control_id,
             control['title'],

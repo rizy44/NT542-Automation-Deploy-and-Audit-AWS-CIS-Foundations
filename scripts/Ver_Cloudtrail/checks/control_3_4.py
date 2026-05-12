@@ -1,19 +1,29 @@
 """
-CIS 3.2: Ensure log file validation is enabled
+CIS 3.4: Ensure CloudTrail logs are encrypted with KMS CMK
 """
 import logging
-from config import get_client, CIS_CONTROLS
-from utils import create_result, error_handler
+from scripts.Ver_Cloudtrail.config import get_client, CIS_CONTROLS
+from scripts.Ver_Cloudtrail.utils import create_result, error_handler
 
 logger = logging.getLogger(__name__)
 
-@error_handler
-def check_control_3_2(profile_name=None, regions=None):
+def is_customer_managed_key(key_id):
     """
-    Check if CloudTrail log file validation is enabled
+    Check if KMS key ID is a customer-managed key
+    Customer-managed keys have ARN format: arn:aws:kms:region:account:key/key-id
+    """
+    if not key_id:
+        return False
+    return key_id.startswith('arn:aws:kms:')
+
+@error_handler
+def check_control_3_4(profile_name=None, regions=None):
+    """
+    Check if CloudTrail logs are encrypted with KMS CMK
     
     Verifies:
-    - LogFileValidationEnabled = true for each trail
+    - KmsKeyId exists
+    - Key is customer-managed (CMK), not AWS-managed
     
     Args:
         profile_name: AWS profile name
@@ -22,7 +32,7 @@ def check_control_3_2(profile_name=None, regions=None):
     Returns:
         dict with control result
     """
-    control_id = "3.2"
+    control_id = "3.4"
     control = CIS_CONTROLS[control_id]
     
     try:
@@ -39,37 +49,40 @@ def check_control_3_2(profile_name=None, regions=None):
                 'FAIL',
                 control['severity'],
                 details={"reason": "No CloudTrail trails found"},
-                remediation="Enable log file validation for CloudTrail trails"
+                remediation="Enable CloudTrail and configure KMS encryption"
             )
         
         all_details = []
-        validated_trails = []
-        failed_trails = []
+        kms_encrypted_trails = []
+        unencrypted_trails = []
         
         for trail in trails:
+            kms_key_id = trail.get('KmsKeyId')
+            
             trail_info = {
                 "trail_name": trail.get('Name'),
                 "arn": trail.get('TrailARN'),
-                "log_file_validation_enabled": trail.get('LogFileValidationEnabled', False)
+                "kms_key_id": kms_key_id,
+                "is_cmk": is_customer_managed_key(kms_key_id) if kms_key_id else False
             }
             all_details.append(trail_info)
             
-            if trail.get('LogFileValidationEnabled'):
-                validated_trails.append(trail.get('Name'))
+            if kms_key_id and is_customer_managed_key(kms_key_id):
+                kms_encrypted_trails.append(trail.get('Name'))
             else:
-                failed_trails.append(trail.get('Name'))
+                unencrypted_trails.append(trail.get('Name'))
         
-        if failed_trails:
+        if unencrypted_trails:
             status = 'FAIL'
             details = {
-                "validated_trails": validated_trails,
-                "unvalidated_trails": failed_trails,
+                "kms_encrypted_trails": kms_encrypted_trails,
+                "unencrypted_trails": unencrypted_trails,
                 "all_trails": all_details
             }
         else:
             status = 'PASS'
             details = {
-                "validated_trails": validated_trails,
+                "kms_encrypted_trails": kms_encrypted_trails,
                 "all_trails": all_details
             }
         
@@ -79,12 +92,12 @@ def check_control_3_2(profile_name=None, regions=None):
             status,
             control['severity'],
             details=details,
-            resource_id=','.join(validated_trails) if validated_trails else None,
-            remediation="Enable log file validation for all CloudTrail trails" if status == 'FAIL' else None
+            resource_id=','.join(kms_encrypted_trails) if kms_encrypted_trails else None,
+            remediation="Enable KMS CMK encryption for CloudTrail logs" if status == 'FAIL' else None
         )
     
     except Exception as e:
-        logger.error(f"Error checking control 3.2: {str(e)}")
+        logger.error(f"Error checking control 3.4: {str(e)}")
         return create_result(
             control_id,
             control['title'],

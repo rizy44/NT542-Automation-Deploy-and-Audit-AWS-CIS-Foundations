@@ -2,8 +2,8 @@
 CIS 3.3: Ensure S3 bucket access logging is enabled
 """
 import logging
-from config import get_client, CIS_CONTROLS
-from utils import create_result, error_handler
+from scripts.Ver_Cloudtrail.config import get_client, CIS_CONTROLS
+from scripts.Ver_Cloudtrail.utils import create_result, error_handler
 
 logger = logging.getLogger(__name__)
 

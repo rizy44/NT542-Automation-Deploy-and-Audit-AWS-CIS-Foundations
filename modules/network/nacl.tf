@@ -1,10 +1,6 @@
 # ============================================================================
 # VULNERABILITY 1: Network ACL - Allows SSH and RDP from 0.0.0.0/0
 # ============================================================================
-# This NACL is intentionally misconfigured to allow unrestricted access
-# to SSH (port 22) and RDP (port 3389) from anywhere on the internet.
-# Attached to BOTH public subnets for Multi-AZ coverage.
-# ============================================================================
 
 resource "aws_network_acl" "vpc_a_public" {
   vpc_id     = aws_vpc.vpc_a.id
@@ -19,7 +15,6 @@ resource "aws_network_acl" "vpc_a_public" {
   )
 }
 
-# Inbound rule: Allow SSH (TCP port 22) from 0.0.0.0/0
 resource "aws_network_acl_rule" "vpc_a_inbound_ssh" {
   network_acl_id = aws_network_acl.vpc_a_public.id
   rule_number    = 100
@@ -30,7 +25,6 @@ resource "aws_network_acl_rule" "vpc_a_inbound_ssh" {
   to_port        = 22
 }
 
-# Inbound rule: Allow RDP (TCP port 3389) from 0.0.0.0/0
 resource "aws_network_acl_rule" "vpc_a_inbound_rdp" {
   network_acl_id = aws_network_acl.vpc_a_public.id
   rule_number    = 110
@@ -41,7 +35,6 @@ resource "aws_network_acl_rule" "vpc_a_inbound_rdp" {
   to_port        = 3389
 }
 
-# Inbound rule: Allow ephemeral ports (1024-65535) for return traffic
 resource "aws_network_acl_rule" "vpc_a_inbound_ephemeral" {
   network_acl_id = aws_network_acl.vpc_a_public.id
   rule_number    = 120
@@ -52,7 +45,6 @@ resource "aws_network_acl_rule" "vpc_a_inbound_ephemeral" {
   to_port        = 65535
 }
 
-# Outbound rule: Allow all traffic
 resource "aws_network_acl_rule" "vpc_a_outbound_all" {
   network_acl_id = aws_network_acl.vpc_a_public.id
   rule_number    = 100

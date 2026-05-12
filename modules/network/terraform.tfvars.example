@@ -1,0 +1,17 @@
+aws_region  = "ap-southeast-1"
+environment = "lab"
+
+project_name = "security-audit"
+
+vpc_a_cidr                  = "10.0.0.0/16"
+vpc_a_public_subnet_1_cidr  = "10.0.1.0/24"
+vpc_a_private_subnet_1_cidr = "10.0.2.0/24"
+vpc_a_public_subnet_2_cidr  = "10.0.3.0/24"
+vpc_a_private_subnet_2_cidr = "10.0.4.0/24"
+
+vpc_b_cidr                  = "10.1.0.0/16"
+vpc_b_private_subnet_cidr   = "10.1.1.0/24"
+
+enable_dns_support              = true
+enable_dns_hostnames            = true
+assign_public_ip_public_subnet   = true

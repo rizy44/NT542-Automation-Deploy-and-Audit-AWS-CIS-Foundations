@@ -11,19 +11,19 @@ from pathlib import Path
 # Add checks folder to path
 sys.path.insert(0, str(Path(__file__).parent))
 
-from config import get_account_id, get_all_regions, CIS_CONTROLS
-from utils import BenchmarkReport, print_report_summary, error_handler
+from scripts.Ver_Cloudtrail.config import get_account_id, get_all_regions, CIS_CONTROLS
+from scripts.Ver_Cloudtrail.utils import BenchmarkReport, print_report_summary, error_handler
 
 # Import all control checks
-from checks.control_3_1 import check_control_3_1
-from checks.control_3_2 import check_control_3_2
-from checks.control_3_3 import check_control_3_3
-from checks.control_3_4 import check_control_3_4
-from checks.control_3_5 import check_control_3_5
-from checks.control_3_6 import check_control_3_6
-from checks.control_3_7 import check_control_3_7
-from checks.control_3_8 import check_control_3_8
-from checks.control_3_9 import check_control_3_9
+from scripts.Ver_Cloudtrail.checks.control_3_1 import check_control_3_1
+from scripts.Ver_Cloudtrail.checks.control_3_2 import check_control_3_2
+from scripts.Ver_Cloudtrail.checks.control_3_3 import check_control_3_3
+from scripts.Ver_Cloudtrail.checks.control_3_4 import check_control_3_4
+from scripts.Ver_Cloudtrail.checks.control_3_5 import check_control_3_5
+from scripts.Ver_Cloudtrail.checks.control_3_6 import check_control_3_6
+from scripts.Ver_Cloudtrail.checks.control_3_7 import check_control_3_7
+from scripts.Ver_Cloudtrail.checks.control_3_8 import check_control_3_8
+from scripts.Ver_Cloudtrail.checks.control_3_9 import check_control_3_9
 
 # Configure logging
 logging.basicConfig(

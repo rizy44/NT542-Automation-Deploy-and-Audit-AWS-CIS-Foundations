@@ -26,8 +26,8 @@ report.json
 .DS_Store
 
 # Project specific
-/Ver_Cloudtrail/__pycache__/
-/Ver_Cloudtrail/.pytest_cache/
+/scripts/Ver_Cloudtrail/__pycache__/
+/scripts/Ver_Cloudtrail/.pytest_cache/
 
 #Terraform
 .terraform/

@@ -70,8 +70,6 @@ resource "aws_route_table_association" "vpc_b_private" {
 # VULNERABILITY 6: VPC B Default Security Group
 # Intentionally left unchanged to retain default rules
 # ============================================================================
-# Note: VPC B default security group is NOT modified. It retains its default
-# rules which allow all inbound traffic from instances in the same security group.
 
 data "aws_security_group" "vpc_b_default" {
   vpc_id = aws_vpc.vpc_b.id

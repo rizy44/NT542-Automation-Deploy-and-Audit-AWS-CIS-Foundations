@@ -58,12 +58,6 @@ variable "vpc_b_private_subnet_cidr" {
   default     = "10.1.1.0/24"
 }
 
-variable "instance_type" {
-  description = "EC2 instance type for vulnerable lab instance"
-  type        = string
-  default     = "t2.micro"
-}
-
 variable "enable_dns_support" {
   description = "Enable DNS support for VPCs"
   type        = bool
