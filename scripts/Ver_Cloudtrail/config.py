@@ -13,19 +13,19 @@ logger = logging.getLogger(__name__)
 # AWS clients cache
 _clients = {}
 
-def get_aws_session(profile_name=None, region=None):
+def get_aws_session(profile_name=None, region_name=None):
     """
     Initialize AWS session
     
     Args:
         profile_name: AWS profile name (optional)
-        region: AWS region (optional)
+        region_name: AWS region (optional)
     
     Returns:
         boto3.Session
     """
     try:
-        session = boto3.Session(profile_name=profile_name, region_name=region)
+        session = boto3.Session(profile_name=profile_name, region_name=region_name)
         return session
     except Exception as e:
         logger.error(f"Failed to create AWS session: {str(e)}")
@@ -95,48 +95,48 @@ def get_account_id(profile_name=None):
 
 # CIS Control Definitions
 CIS_CONTROLS = {
-    "3.1": {
+    "4.1": {
         "title": "Ensure CloudTrail is enabled in all regions",
         "severity": "CRITICAL",
         "category": "CloudTrail"
     },
-    "3.2": {
-        "title": "Ensure log file validation is enabled",
+    "4.2": {
+        "title": "Ensure CloudTrail log file validation is enabled",
         "severity": "HIGH",
         "category": "CloudTrail"
     },
-    "3.3": {
-        "title": "Ensure S3 bucket access logging is enabled",
-        "severity": "HIGH",
-        "category": "CloudTrail"
-    },
-    "3.4": {
-        "title": "Ensure CloudTrail logs are encrypted with KMS CMK",
-        "severity": "HIGH",
-        "category": "CloudTrail"
-    },
-    "3.5": {
-        "title": "Ensure KMS key rotation is enabled",
-        "severity": "MEDIUM",
-        "category": "KMS"
-    },
-    "3.6": {
+    "4.3": {
         "title": "Ensure AWS Config is enabled in all regions",
         "severity": "HIGH",
         "category": "Config"
     },
-    "3.7": {
-        "title": "Ensure VPC Flow Logs are enabled",
+    "4.4": {
+        "title": "Ensure that server access logging is enabled on the CloudTrail S3 bucket",
+        "severity": "HIGH",
+        "category": "S3"
+    },
+    "4.5": {
+        "title": "Ensure CloudTrail logs are encrypted at rest using KMS CMKs",
+        "severity": "HIGH",
+        "category": "CloudTrail"
+    },
+    "4.6": {
+        "title": "Ensure rotation for customer-created symmetric CMKs is enabled",
+        "severity": "MEDIUM",
+        "category": "KMS"
+    },
+    "4.7": {
+        "title": "Ensure VPC flow logging is enabled in all VPCs",
         "severity": "HIGH",
         "category": "VPC"
     },
-    "3.8": {
-        "title": "Ensure S3 object-level logging for WRITE events",
+    "4.8": {
+        "title": "Ensure that object-level logging for write events is enabled for S3 buckets",
         "severity": "MEDIUM",
         "category": "CloudTrail"
     },
-    "3.9": {
-        "title": "Ensure S3 object-level logging for READ events",
+    "4.9": {
+        "title": "Ensure that object-level logging for read events is enabled for S3 buckets",
         "severity": "MEDIUM",
         "category": "CloudTrail"
     }
