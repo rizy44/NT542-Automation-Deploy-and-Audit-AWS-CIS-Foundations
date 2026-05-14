@@ -1,6 +1,8 @@
 # Terraform CIS Baseline
 
-Root-driven Terraform stack for a concise CIS-oriented AWS baseline. The repository root is the supported entry point; direct module runs are for local module development only.
+Terraform stack for a concise CIS-oriented AWS baseline. The supported Terraform
+entry point is `infra/`; direct module runs are for local module development
+only.
 
 ## Topology
 
@@ -13,6 +15,7 @@ Root-driven Terraform stack for a concise CIS-oriented AWS baseline. The reposit
 ## Quick Start
 
 ```bash
+cd infra
 cp terraform.tfvars.example terraform.tfvars
 terraform init
 terraform fmt -recursive
@@ -33,9 +36,9 @@ terraform plan
 
 ## Modules
 
-- `modules/network`: VPC, public/private subnets, routing, NACLs, NAT, and VPC Flow Logs.
-- `modules/compute`: Private EC2 app instances, security group, and SSM IAM profile.
-- `modules/Cloudtrail`: CloudTrail, KMS, S3 log buckets, and AWS Config resources.
+- `infra/modules/network`: VPC, public/private subnets, routing, NACLs, NAT, and VPC Flow Logs.
+- `infra/modules/compute`: Private EC2 app instances, security group, and SSM IAM profile.
+- `infra/modules/Cloudtrail`: CloudTrail, KMS, S3 log buckets, and AWS Config resources.
 
 ## Current CIS Coverage Note
 

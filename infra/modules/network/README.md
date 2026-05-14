@@ -1,6 +1,8 @@
 # Network Module
 
-This module is part of the root Terraform stack. Use the repository root as the supported entry point; running this module directly is only for local module development.
+This module is part of the root Terraform stack under `infra/`. Use `infra/` as
+the supported entry point; running this module directly is only for local module
+development.
 
 ## Resources
 

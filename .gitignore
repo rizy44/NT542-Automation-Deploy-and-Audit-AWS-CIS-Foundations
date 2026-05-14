@@ -31,5 +31,6 @@ report.json
 
 #Terraform
 .terraform/
+**/.terraform/
 *.tfstate
 *.tfstate.backup
