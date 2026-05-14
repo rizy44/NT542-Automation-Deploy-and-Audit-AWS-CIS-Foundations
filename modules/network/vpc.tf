@@ -1,204 +1,145 @@
-# ============================================================================
-# VPC A - Main Environment (Multi-AZ)
-# ============================================================================
+resource "aws_vpc" "main" {
+  cidr_block           = var.vpc_cidr
+  enable_dns_support   = true
+  enable_dns_hostnames = true
 
-resource "aws_vpc" "vpc_a" {
-  cidr_block           = var.vpc_a_cidr
-  enable_dns_support   = var.enable_dns_support
-  enable_dns_hostnames = var.enable_dns_hostnames
-
-  tags = merge(
-    local.common_tags,
-    {
-      Name = "${var.project_name}-vpc-a"
-    }
-  )
+  tags = merge(local.module_tags, {
+    Name = "${var.name_prefix}-vpc-main"
+  })
 }
 
-# ============================================================================
-# Internet Gateway for VPC A
-# ============================================================================
+resource "aws_internet_gateway" "main" {
+  vpc_id = aws_vpc.main.id
 
-resource "aws_internet_gateway" "vpc_a" {
-  vpc_id = aws_vpc.vpc_a.id
-
-  tags = merge(
-    local.common_tags,
-    {
-      Name = "${var.project_name}-igw-a"
-    }
-  )
+  tags = merge(local.module_tags, {
+    Name = "${var.name_prefix}-igw-main"
+  })
 }
 
-# ============================================================================
-# Public Subnet 1 (AZ 1) in VPC A
-# ============================================================================
+resource "aws_subnet" "public" {
+  count = var.az_count
 
-resource "aws_subnet" "vpc_a_public_1" {
-  vpc_id                  = aws_vpc.vpc_a.id
-  cidr_block              = var.vpc_a_public_subnet_1_cidr
-  map_public_ip_on_launch = var.assign_public_ip_public_subnet
-  availability_zone       = local.primary_az
+  vpc_id                  = aws_vpc.main.id
+  cidr_block              = local.public_subnet_cidrs[count.index]
+  availability_zone       = local.az_names[count.index]
+  map_public_ip_on_launch = true
 
-  tags = merge(
-    local.common_tags,
-    {
-      Name = "${var.project_name}-subnet-vpc-a-public-1"
-      Type = "Public"
-    }
-  )
+  tags = merge(local.module_tags, {
+    Name = "${var.name_prefix}-subnet-public-${local.az_suffixes[count.index]}"
+    Tier = "public"
+  })
 }
 
-# ============================================================================
-# Private Subnet 1 (AZ 1) in VPC A
-# ============================================================================
+resource "aws_subnet" "private_app" {
+  count = var.az_count
 
-resource "aws_subnet" "vpc_a_private_1" {
-  vpc_id            = aws_vpc.vpc_a.id
-  cidr_block        = var.vpc_a_private_subnet_1_cidr
-  availability_zone = local.primary_az
+  vpc_id                  = aws_vpc.main.id
+  cidr_block              = local.private_app_subnet_cidrs[count.index]
+  availability_zone       = local.az_names[count.index]
+  map_public_ip_on_launch = false
 
-  tags = merge(
-    local.common_tags,
-    {
-      Name = "${var.project_name}-subnet-vpc-a-private-1"
-      Type = "Private"
-    }
-  )
+  tags = merge(local.module_tags, {
+    Name = "${var.name_prefix}-subnet-private-app-${local.az_suffixes[count.index]}"
+    Tier = "private-app"
+  })
 }
 
-# ============================================================================
-# Public Subnet 2 (AZ 2) in VPC A
-# ============================================================================
+resource "aws_subnet" "private_data" {
+  count = var.az_count
 
-resource "aws_subnet" "vpc_a_public_2" {
-  vpc_id                  = aws_vpc.vpc_a.id
-  cidr_block              = var.vpc_a_public_subnet_2_cidr
-  map_public_ip_on_launch = var.assign_public_ip_public_subnet
-  availability_zone       = local.secondary_az
+  vpc_id                  = aws_vpc.main.id
+  cidr_block              = local.private_data_subnet_cidrs[count.index]
+  availability_zone       = local.az_names[count.index]
+  map_public_ip_on_launch = false
 
-  tags = merge(
-    local.common_tags,
-    {
-      Name = "${var.project_name}-subnet-vpc-a-public-2"
-      Type = "Public"
-    }
-  )
+  tags = merge(local.module_tags, {
+    Name = "${var.name_prefix}-subnet-private-data-${local.az_suffixes[count.index]}"
+    Tier = "private-data"
+  })
 }
 
-# ============================================================================
-# Private Subnet 2 (AZ 2) in VPC A
-# ============================================================================
+resource "aws_eip" "nat" {
+  count = var.enable_nat_gateway ? var.az_count : 0
 
-resource "aws_subnet" "vpc_a_private_2" {
-  vpc_id            = aws_vpc.vpc_a.id
-  cidr_block        = var.vpc_a_private_subnet_2_cidr
-  availability_zone = local.secondary_az
+  domain = "vpc"
 
-  tags = merge(
-    local.common_tags,
-    {
-      Name = "${var.project_name}-subnet-vpc-a-private-2"
-      Type = "Private"
-    }
-  )
+  tags = merge(local.module_tags, {
+    Name = "${var.name_prefix}-eip-nat-${local.az_suffixes[count.index]}"
+  })
 }
 
-# ============================================================================
-# Public Route Table (Shared by both public subnets)
-# ============================================================================
+resource "aws_nat_gateway" "main" {
+  count = var.enable_nat_gateway ? var.az_count : 0
 
-resource "aws_route_table" "vpc_a_public" {
-  vpc_id = aws_vpc.vpc_a.id
+  allocation_id = aws_eip.nat[count.index].id
+  subnet_id     = aws_subnet.public[count.index].id
 
-  tags = merge(
-    local.common_tags,
-    {
-      Name = "${var.project_name}-rt-vpc-a-public"
-    }
-  )
+  tags = merge(local.module_tags, {
+    Name = "${var.name_prefix}-nat-${local.az_suffixes[count.index]}"
+  })
+
+  depends_on = [aws_internet_gateway.main]
 }
 
-# ============================================================================
-# Private Route Table (Shared by both private subnets)
-# ============================================================================
+resource "aws_route_table" "public" {
+  vpc_id = aws_vpc.main.id
 
-resource "aws_route_table" "vpc_a_private" {
-  vpc_id = aws_vpc.vpc_a.id
-
-  tags = merge(
-    local.common_tags,
-    {
-      Name = "${var.project_name}-rt-vpc-a-private"
-    }
-  )
+  tags = merge(local.module_tags, {
+    Name = "${var.name_prefix}-rt-public"
+  })
 }
 
-# ============================================================================
-# Routes for Public Route Table
-# ============================================================================
-
-resource "aws_route" "vpc_a_public_igw" {
-  route_table_id         = aws_route_table.vpc_a_public.id
+resource "aws_route" "public_default" {
+  route_table_id         = aws_route_table.public.id
   destination_cidr_block = "0.0.0.0/0"
-  gateway_id             = aws_internet_gateway.vpc_a.id
+  gateway_id             = aws_internet_gateway.main.id
 }
 
-resource "aws_route" "vpc_a_public_to_vpc_b" {
-  route_table_id            = aws_route_table.vpc_a_public.id
-  destination_cidr_block    = var.vpc_b_cidr
-  vpc_peering_connection_id = aws_vpc_peering_connection.main.id
+resource "aws_route_table" "private_app" {
+  count = var.az_count
 
-  depends_on = [aws_vpc_peering_connection.main]
+  vpc_id = aws_vpc.main.id
+
+  tags = merge(local.module_tags, {
+    Name = "${var.name_prefix}-rt-private-app-${local.az_suffixes[count.index]}"
+  })
 }
 
-# ============================================================================
-# Routes for Private Route Table
-# ============================================================================
+resource "aws_route" "private_app_nat" {
+  count = var.enable_nat_gateway ? var.az_count : 0
 
-resource "aws_route" "vpc_a_private_to_vpc_b" {
-  route_table_id            = aws_route_table.vpc_a_private.id
-  destination_cidr_block    = var.vpc_b_cidr
-  vpc_peering_connection_id = aws_vpc_peering_connection.main.id
-
-  depends_on = [aws_vpc_peering_connection.main]
+  route_table_id         = aws_route_table.private_app[count.index].id
+  destination_cidr_block = "0.0.0.0/0"
+  nat_gateway_id         = aws_nat_gateway.main[count.index].id
 }
 
-# ============================================================================
-# Route Table Associations - Public Subnets
-# ============================================================================
+resource "aws_route_table" "private_data" {
+  count = var.az_count
 
-resource "aws_route_table_association" "vpc_a_public_1" {
-  subnet_id      = aws_subnet.vpc_a_public_1.id
-  route_table_id = aws_route_table.vpc_a_public.id
+  vpc_id = aws_vpc.main.id
+
+  tags = merge(local.module_tags, {
+    Name = "${var.name_prefix}-rt-private-data-${local.az_suffixes[count.index]}"
+  })
 }
 
-resource "aws_route_table_association" "vpc_a_public_2" {
-  subnet_id      = aws_subnet.vpc_a_public_2.id
-  route_table_id = aws_route_table.vpc_a_public.id
+resource "aws_route_table_association" "public" {
+  count = var.az_count
+
+  subnet_id      = aws_subnet.public[count.index].id
+  route_table_id = aws_route_table.public.id
 }
 
-# ============================================================================
-# Route Table Associations - Private Subnets
-# ============================================================================
+resource "aws_route_table_association" "private_app" {
+  count = var.az_count
 
-resource "aws_route_table_association" "vpc_a_private_1" {
-  subnet_id      = aws_subnet.vpc_a_private_1.id
-  route_table_id = aws_route_table.vpc_a_private.id
+  subnet_id      = aws_subnet.private_app[count.index].id
+  route_table_id = aws_route_table.private_app[count.index].id
 }
 
-resource "aws_route_table_association" "vpc_a_private_2" {
-  subnet_id      = aws_subnet.vpc_a_private_2.id
-  route_table_id = aws_route_table.vpc_a_private.id
-}
+resource "aws_route_table_association" "private_data" {
+  count = var.az_count
 
-# ============================================================================
-# VULNERABILITY 2: VPC A Default Security Group
-# ============================================================================
-
-data "aws_security_group" "vpc_a_default" {
-  vpc_id = aws_vpc.vpc_a.id
-  name   = "default"
-
-  depends_on = [aws_vpc.vpc_a]
+  subnet_id      = aws_subnet.private_data[count.index].id
+  route_table_id = aws_route_table.private_data[count.index].id
 }

@@ -1,14 +1,15 @@
-# ============================================================================
-# Data Source: Latest Amazon Linux 2023 AMI
-# ============================================================================
-
 data "aws_ami" "amazon_linux_2023" {
   most_recent = true
   owners      = ["amazon"]
 
   filter {
     name   = "name"
-    values = ["al2023-ami-*"]
+    values = ["al2023-ami-2023.*-kernel-*-x86_64"]
+  }
+
+  filter {
+    name   = "architecture"
+    values = ["x86_64"]
   }
 
   filter {
@@ -22,24 +23,20 @@ data "aws_ami" "amazon_linux_2023" {
   }
 }
 
-# ============================================================================
-# VULNERABILITY 4: EC2 Metadata Options
-# ============================================================================
-# VULNERABILITY 5: EC2 Root EBS Volume - NOT Encrypted
-# ============================================================================
+resource "aws_instance" "app" {
+  count = length(var.private_subnet_ids)
 
-resource "aws_instance" "vulnerable" {
-  count         = 2
-  ami           = data.aws_ami.amazon_linux_2023.id
-  instance_type = var.instance_type
-
-  subnet_id                   = count.index == 0 ? var.vpc_a_public_subnet_1_id : var.vpc_a_public_subnet_2_id
-  security_groups             = [aws_security_group.ec2_vulnerable.id]
-  associate_public_ip_address = true
+  ami                         = data.aws_ami.amazon_linux_2023.id
+  instance_type               = var.instance_type
+  subnet_id                   = var.private_subnet_ids[count.index]
+  vpc_security_group_ids      = [aws_security_group.app.id]
+  associate_public_ip_address = false
+  iam_instance_profile        = aws_iam_instance_profile.app.name
+  monitoring                  = true
 
   metadata_options {
     http_endpoint               = "enabled"
-    http_tokens                 = "optional"
+    http_tokens                 = "required"
     http_put_response_hop_limit = 1
     instance_metadata_tags      = "enabled"
   }
@@ -47,22 +44,12 @@ resource "aws_instance" "vulnerable" {
   root_block_device {
     volume_type           = "gp3"
     volume_size           = 20
-    encrypted             = false
+    encrypted             = true
     delete_on_termination = true
   }
 
-  monitoring = false
-
-  tags = merge(
-    local.common_tags,
-    {
-      Name            = "${var.project_name}-ec2-vulnerable-${count.index + 1}"
-      Instance        = "Instance-${count.index + 1}"
-      Vulnerabilities = "4,5"
-    }
-  )
-
-  depends_on = [
-    aws_security_group.ec2_vulnerable
-  ]
+  tags = merge(local.module_tags, {
+    Name = "${var.name_prefix}-ec2-app-${count.index + 1}"
+    Tier = "app"
+  })
 }

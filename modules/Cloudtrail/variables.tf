@@ -1,41 +1,49 @@
-variable "aws_region" {
-  description = "AWS region for this stack"
+variable "name_prefix" {
+  description = "Prefix used for logging resource names."
   type        = string
-  default     = "ap-southeast-1"
 }
 
-variable "environment" {
-  description = "Environment label"
-  type        = string
-  default     = "dev"
+variable "common_tags" {
+  description = "Common tags applied to all logging resources."
+  type        = map(string)
 }
 
-variable "trail_name" {
-  description = "Name of CloudTrail trail"
-  type        = string
-  default     = "main-cloudtrail"
+variable "cloudtrail_retention_days" {
+  description = "Number of days to retain CloudTrail logs in S3."
+  type        = number
+  default     = 365
+
+  validation {
+    condition     = var.cloudtrail_retention_days >= 1
+    error_message = "cloudtrail_retention_days must be at least 1."
+  }
 }
 
-variable "log_bucket_name_prefix" {
-  description = "Prefix for CloudTrail log bucket name"
+variable "config_snapshot_delivery_frequency" {
+  description = "AWS Config snapshot delivery frequency."
   type        = string
-  default     = "cloudtrail-logs"
+  default     = "TwentyFour_Hours"
+
+  validation {
+    condition = contains([
+      "One_Hour",
+      "Three_Hours",
+      "Six_Hours",
+      "Twelve_Hours",
+      "TwentyFour_Hours"
+    ], var.config_snapshot_delivery_frequency)
+    error_message = "config_snapshot_delivery_frequency must be a valid AWS Config delivery frequency."
+  }
 }
 
-variable "is_multi_region_trail" {
-  description = "Whether this trail covers all regions"
+variable "enable_s3_data_event_read_logging" {
+  description = "Whether CloudTrail records S3 object read data events."
   type        = bool
   default     = true
 }
 
-variable "include_global_service_events" {
-  description = "Include global service events in this trail"
-  type        = bool
-  default     = true
-}
-
-variable "enable_log_file_validation" {
-  description = "Enable CloudTrail log file validation"
+variable "enable_s3_data_event_write_logging" {
+  description = "Whether CloudTrail records S3 object write data events."
   type        = bool
   default     = true
 }

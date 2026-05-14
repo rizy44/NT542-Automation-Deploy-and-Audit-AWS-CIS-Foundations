@@ -22,6 +22,7 @@ data "aws_iam_policy_document" "kms_key" {
     }
 
     actions = [
+      "kms:Decrypt",
       "kms:DescribeKey",
       "kms:GenerateDataKey*"
     ]
@@ -29,11 +30,15 @@ data "aws_iam_policy_document" "kms_key" {
     resources = ["*"]
 
     condition {
+      test     = "StringEquals"
+      variable = "aws:SourceArn"
+      values   = ["arn:${data.aws_partition.current.partition}:cloudtrail:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:trail/${local.cloudtrail_name}"]
+    }
+
+    condition {
       test     = "StringLike"
       variable = "kms:EncryptionContext:aws:cloudtrail:arn"
-      values = [
-        "arn:${data.aws_partition.current.partition}:cloudtrail:*:${data.aws_caller_identity.current.account_id}:trail/*"
-      ]
+      values   = ["arn:${data.aws_partition.current.partition}:cloudtrail:*:${data.aws_caller_identity.current.account_id}:trail/${local.cloudtrail_name}"]
     }
   }
 }
@@ -44,12 +49,12 @@ resource "aws_kms_key" "cloudtrail" {
   enable_key_rotation     = true
   policy                  = data.aws_iam_policy_document.kms_key.json
 
-  tags = merge(local.common_tags, {
-    Name = "cloudtrail-kms-${var.environment}"
+  tags = merge(local.module_tags, {
+    Name = "${var.name_prefix}-cloudtrail"
   })
 }
 
 resource "aws_kms_alias" "cloudtrail" {
-  name          = "alias/cloudtrail-${var.environment}"
+  name          = "alias/${var.name_prefix}-cloudtrail"
   target_key_id = aws_kms_key.cloudtrail.key_id
 }

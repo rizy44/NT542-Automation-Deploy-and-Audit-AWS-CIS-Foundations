@@ -1,83 +1,31 @@
-variable "aws_region" {
-  description = "AWS region for this stack"
+variable "name_prefix" {
+  description = "Prefix used for network resource names."
   type        = string
-  default     = "ap-southeast-1"
 }
 
-variable "environment" {
-  description = "Environment name for resource tagging and naming"
+variable "vpc_cidr" {
+  description = "CIDR block for the VPC."
   type        = string
-  default     = "lab"
 }
 
-variable "project_name" {
-  description = "Project name for resource tagging and naming"
-  type        = string
-  default     = "security-audit"
+variable "az_count" {
+  description = "Number of availability zones to use."
+  type        = number
+  default     = 2
+
+  validation {
+    condition     = var.az_count >= 2
+    error_message = "az_count must be at least 2."
+  }
 }
 
-variable "vpc_a_cidr" {
-  description = "CIDR block for VPC A (Main Environment)"
-  type        = string
-  default     = "10.0.0.0/16"
-}
-
-variable "vpc_a_public_subnet_1_cidr" {
-  description = "CIDR block for VPC A public subnet 1 (AZ 1)"
-  type        = string
-  default     = "10.0.1.0/24"
-}
-
-variable "vpc_a_private_subnet_1_cidr" {
-  description = "CIDR block for VPC A private subnet 1 (AZ 1)"
-  type        = string
-  default     = "10.0.2.0/24"
-}
-
-variable "vpc_a_public_subnet_2_cidr" {
-  description = "CIDR block for VPC A public subnet 2 (AZ 2)"
-  type        = string
-  default     = "10.0.3.0/24"
-}
-
-variable "vpc_a_private_subnet_2_cidr" {
-  description = "CIDR block for VPC A private subnet 2 (AZ 2)"
-  type        = string
-  default     = "10.0.4.0/24"
-}
-
-variable "vpc_b_cidr" {
-  description = "CIDR block for VPC B (Partner Environment)"
-  type        = string
-  default     = "10.1.0.0/16"
-}
-
-variable "vpc_b_private_subnet_cidr" {
-  description = "CIDR block for VPC B private subnet"
-  type        = string
-  default     = "10.1.1.0/24"
-}
-
-variable "enable_dns_support" {
-  description = "Enable DNS support for VPCs"
+variable "enable_nat_gateway" {
+  description = "Whether to create one NAT Gateway per AZ for private app subnet egress."
   type        = bool
   default     = true
 }
 
-variable "enable_dns_hostnames" {
-  description = "Enable DNS hostname support for VPCs"
-  type        = bool
-  default     = true
-}
-
-variable "assign_public_ip_public_subnet" {
-  description = "Enable auto-assign public IPv4 address for VPC A public subnets"
-  type        = bool
-  default     = true
-}
-
-variable "tags" {
-  description = "Additional tags to apply to all resources"
+variable "common_tags" {
+  description = "Tags applied to all network resources."
   type        = map(string)
-  default     = {}
 }

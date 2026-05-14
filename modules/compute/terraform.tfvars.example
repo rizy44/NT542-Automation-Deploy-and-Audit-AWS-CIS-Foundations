@@ -1,10 +1,20 @@
-aws_region  = "ap-southeast-1"
-environment = "lab"
+name_prefix = "cis-baseline-dev"
+vpc_id      = "vpc-xxxxxxxx"
+vpc_cidr    = "10.0.0.0/16"
 
-project_name = "security-audit"
-instance_type = "t2.micro"
+private_subnet_ids = [
+  "subnet-private-app-a",
+  "subnet-private-app-b",
+]
 
-# These values must come from the network module outputs.
-vpc_a_id                 = "vpc-xxxxxxxx"
-vpc_a_public_subnet_1_id = "subnet-xxxxxxxx"
-vpc_a_public_subnet_2_id = "subnet-yyyyyyyy"
+instance_type = "t3.micro"
+
+# Leave empty to disable SSH ingress. Prefer SSM Session Manager for access.
+admin_cidr_blocks = []
+
+common_tags = {
+  Project     = "cis-baseline"
+  Environment = "dev"
+  ManagedBy   = "Terraform"
+  Compliance  = "cis-aws-foundations"
+}

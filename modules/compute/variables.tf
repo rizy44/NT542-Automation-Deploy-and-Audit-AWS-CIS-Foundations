@@ -1,44 +1,51 @@
-variable "aws_region" {
-  description = "AWS region for this stack"
+variable "name_prefix" {
+  description = "Prefix used for compute resource names."
   type        = string
-  default     = "ap-southeast-1"
 }
 
-variable "environment" {
-  description = "Environment name for resource tagging and naming"
+variable "vpc_id" {
+  description = "VPC ID where compute resources are created."
   type        = string
-  default     = "lab"
 }
 
-variable "project_name" {
-  description = "Project name for resource tagging and naming"
+variable "vpc_cidr" {
+  description = "CIDR block for internal VPC application access."
   type        = string
-  default     = "security-audit"
+}
+
+variable "private_subnet_ids" {
+  description = "Private subnet IDs for app instances."
+  type        = list(string)
+
+  validation {
+    condition     = length(var.private_subnet_ids) > 0
+    error_message = "private_subnet_ids must contain at least one subnet ID."
+  }
 }
 
 variable "instance_type" {
-  description = "EC2 instance type for vulnerable lab instance"
+  description = "EC2 instance type for app instances."
   type        = string
-  default     = "t2.micro"
+  default     = "t3.micro"
 }
 
-variable "vpc_a_id" {
-  description = "VPC A ID from the network module"
-  type        = string
+variable "admin_cidr_blocks" {
+  description = "Optional administrator CIDR blocks allowed to SSH to app instances."
+  type        = list(string)
+  default     = []
+
+  validation {
+    condition = alltrue([
+      for cidr in var.admin_cidr_blocks :
+      can(cidrhost(cidr, 0)) &&
+      can(regex("^([0-9]{1,3}\\.){3}[0-9]{1,3}/([0-9]|[12][0-9]|3[0-2])$", cidr)) &&
+      cidr != "0.0.0.0/0"
+    ])
+    error_message = "admin_cidr_blocks must be valid IPv4 CIDRs and cannot include 0.0.0.0/0."
+  }
 }
 
-variable "vpc_a_public_subnet_1_id" {
-  description = "Public subnet 1 ID from the network module"
-  type        = string
-}
-
-variable "vpc_a_public_subnet_2_id" {
-  description = "Public subnet 2 ID from the network module"
-  type        = string
-}
-
-variable "tags" {
-  description = "Additional tags to apply to all resources"
+variable "common_tags" {
+  description = "Common tags to apply to compute resources."
   type        = map(string)
-  default     = {}
 }
