@@ -1,0 +1,51 @@
+variable "name_prefix" {
+  description = "Prefix used for compute resource names."
+  type        = string
+}
+
+variable "vpc_id" {
+  description = "VPC ID where compute resources are created."
+  type        = string
+}
+
+variable "vpc_cidr" {
+  description = "CIDR block for internal VPC application access."
+  type        = string
+}
+
+variable "private_subnet_ids" {
+  description = "Private subnet IDs for app instances."
+  type        = list(string)
+
+  validation {
+    condition     = length(var.private_subnet_ids) > 0
+    error_message = "private_subnet_ids must contain at least one subnet ID."
+  }
+}
+
+variable "instance_type" {
+  description = "EC2 instance type for app instances."
+  type        = string
+  default     = "t3.micro"
+}
+
+variable "admin_cidr_blocks" {
+  description = "Optional administrator CIDR blocks allowed to SSH to app instances."
+  type        = list(string)
+  default     = []
+
+  validation {
+    condition = alltrue([
+      for cidr in var.admin_cidr_blocks :
+      can(cidrhost(cidr, 0)) &&
+      can(regex("^([0-9]{1,3}\\.){3}[0-9]{1,3}/([0-9]|[12][0-9]|3[0-2])$", cidr)) &&
+      cidr != "0.0.0.0/0"
+    ])
+    error_message = "admin_cidr_blocks must be valid IPv4 CIDRs and cannot include 0.0.0.0/0."
+  }
+}
+
+variable "common_tags" {
+  description = "Common tags to apply to compute resources."
+  type        = map(string)
+}

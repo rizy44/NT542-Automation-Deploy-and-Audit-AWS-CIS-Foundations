@@ -1,0 +1,20 @@
+name_prefix = "cis-baseline-dev"
+vpc_id      = "vpc-xxxxxxxx"
+vpc_cidr    = "10.0.0.0/16"
+
+private_subnet_ids = [
+  "subnet-private-app-a",
+  "subnet-private-app-b",
+]
+
+instance_type = "t3.micro"
+
+# Leave empty to disable SSH ingress. Prefer SSM Session Manager for access.
+admin_cidr_blocks = []
+
+common_tags = {
+  Project     = "cis-baseline"
+  Environment = "dev"
+  ManagedBy   = "Terraform"
+  Compliance  = "cis-aws-foundations"
+}

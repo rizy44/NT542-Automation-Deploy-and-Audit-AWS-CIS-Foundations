@@ -121,10 +121,10 @@ The CloudTrail module targets CIS AWS Foundations Benchmark v6 logging controls
 
 AWS Config and VPC Flow Logs are needed for CIS logging controls as well. VPC
 Flow Logs belong in the network module because they depend on the VPC. AWS
-Config is included in the CloudTrail/logging module for this first baseline so
-the stack can satisfy CIS 4.3 without introducing another module yet. A later
-refactor can split AWS Config into `modules/config` when the project starts
-covering broader resource-inventory controls.
+Config is included in the CloudTrail/logging module for this first baseline in
+the active provider region. Full CIS 4.3 coverage across every enabled AWS
+region requires a later provider-alias composition or dedicated `modules/config`
+implementation that instantiates AWS Config region by region.
 
 ## Data Flow
 

@@ -1,0 +1,11 @@
+name_prefix        = "cis-baseline-dev"
+vpc_cidr           = "10.0.0.0/16"
+az_count           = 2
+enable_nat_gateway = true
+
+common_tags = {
+  Project     = "cis-baseline"
+  Environment = "dev"
+  ManagedBy   = "Terraform"
+  Compliance  = "cis-aws-foundations"
+}
