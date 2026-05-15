@@ -1,13 +1,13 @@
-variable "aws_region" {
-  description = "AWS region for this stack"
-  type        = string
-  default     = "ap-southeast-1"
-}
-
 variable "environment" {
   description = "Environment label"
   type        = string
   default     = "dev"
+}
+
+variable "project_name" {
+  description = "Project name for resource tagging and naming"
+  type        = string
+  default     = "cis-baseline"
 }
 
 variable "cloudtrail_log_group_name" {

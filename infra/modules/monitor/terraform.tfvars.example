@@ -1,0 +1,8 @@
+environment  = "dev"
+project_name = "cis-baseline"
+
+cloudtrail_log_group_name = "/aws/cloudtrail/cis-baseline-dev"
+sns_topic_name            = "cis-monitoring-alerts"
+alarm_notification_emails = ["security-team@example.com"]
+metric_namespace          = "CISBenchmark"
+enable_security_hub       = true

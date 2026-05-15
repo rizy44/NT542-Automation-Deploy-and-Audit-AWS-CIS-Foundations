@@ -1,7 +1,0 @@
-aws_region                = "ap-southeast-1"
-environment               = "dev"
-cloudtrail_log_group_name = "/aws/cloudtrail/main-cloudtrail"
-sns_topic_name            = "cis-monitoring-alerts"
-alarm_notification_email  = "security-team@example.com"
-metric_namespace          = "CISBenchmark"
-enable_security_hub       = true

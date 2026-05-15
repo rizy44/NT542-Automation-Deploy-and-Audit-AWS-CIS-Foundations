@@ -10,6 +10,17 @@ enable_nat_gateway = true
 admin_cidr_blocks  = []
 instance_type      = "t3.micro"
 
+rds_master_password = "CHANGE_ME_minimum_16_chars"
+
+cloudtrail_log_group_name         = null
+monitor_sns_topic_arn             = ""
+monitor_sns_topic_name            = "cis-monitoring-alerts"
+monitor_alarm_notification_emails = []
+monitor_metric_namespace          = "CISBenchmark"
+enable_security_hub               = false
+monitor_enabled_controls          = []
+monitor_create_metric_filters     = true
+
 tags = {
   Repository = "terraform-cis-baseline"
 }

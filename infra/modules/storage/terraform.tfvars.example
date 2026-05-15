@@ -1,0 +1,11 @@
+environment  = "dev"
+project_name = "cis-baseline"
+
+vpc_id             = "vpc-xxxxxxxx"
+private_subnet_ids = ["subnet-xxxxxxxx", "subnet-yyyyyyyy"]
+vpc_cidr_block     = "10.0.0.0/16"
+
+data_bucket_name_prefix  = "cis-baseline-dev-storage-data"
+macie_bucket_name_prefix = "cis-baseline-dev-storage-macie-findings"
+
+rds_master_password = "CHANGE_ME_minimum_16_chars"

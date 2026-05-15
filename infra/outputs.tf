@@ -57,3 +57,28 @@ output "vpc_flow_log_id" {
   description = "ID of the VPC flow log."
   value       = module.network.vpc_flow_log_id
 }
+
+output "storage_data_bucket_name" {
+  description = "S3 bucket name used by the storage module."
+  value       = module.storage.data_bucket_name
+}
+
+output "storage_rds_endpoint" {
+  description = "RDS endpoint created by the storage module."
+  value       = module.storage.rds_endpoint
+}
+
+output "storage_efs_id" {
+  description = "EFS file system ID created by the storage module."
+  value       = module.storage.efs_id
+}
+
+output "monitor_sns_topic_arn" {
+  description = "SNS topic ARN used by CIS monitoring alarms."
+  value       = module.monitor.cis_monitoring_sns_topic_arn
+}
+
+output "monitor_alarm_names" {
+  description = "CloudWatch alarm names created by the monitor module."
+  value       = module.monitor.cis_monitoring_alarm_names
+}

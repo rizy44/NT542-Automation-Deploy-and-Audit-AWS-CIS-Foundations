@@ -38,7 +38,9 @@ terraform plan
 
 - `infra/modules/network`: VPC, public/private subnets, routing, NACLs, NAT, and VPC Flow Logs.
 - `infra/modules/compute`: Private EC2 app instances, security group, and SSM IAM profile.
-- `infra/modules/Cloudtrail`: CloudTrail, KMS, S3 log buckets, and AWS Config resources.
+- `infra/modules/cloudtrail`: CloudTrail, KMS, S3 log buckets, and AWS Config resources.
+- `infra/modules/monitor`: CloudWatch metric filters, alarms, SNS notifications, and Security Hub controls.
+- `infra/modules/storage`: S3, Macie, RDS, EFS, and storage encryption controls.
 
 ## Current CIS Coverage Note
 

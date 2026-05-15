@@ -60,7 +60,7 @@ resource "null_resource" "macie_discovery_export_config" {
   provisioner "local-exec" {
     interpreter = ["bash", "-c"]
     # Đã gộp thành 1 dòng duy nhất để tránh lỗi bash line continuation
-    command = "aws macie2 put-classification-export-configuration --region ${var.aws_region} --configuration '{\"s3Destination\":{\"bucketName\":\"${aws_s3_bucket.macie_findings.id}\",\"kmsKeyArn\":\"${aws_kms_key.s3.arn}\"}}'"
+    command = "aws macie2 put-classification-export-configuration --region ${data.aws_region.current.name} --configuration '{\"s3Destination\":{\"bucketName\":\"${aws_s3_bucket.macie_findings.id}\",\"kmsKeyArn\":\"${aws_kms_key.s3.arn}\"}}'"
   }
 
   depends_on = [

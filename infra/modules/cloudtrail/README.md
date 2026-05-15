@@ -43,7 +43,7 @@ The root stack passes the shared name prefix and tags. Optional settings use mod
 
 ```hcl
 module "cloudtrail" {
-  source = "./modules/Cloudtrail"
+  source = "./modules/cloudtrail"
 
   name_prefix = local.name_prefix
   common_tags = local.common_tags

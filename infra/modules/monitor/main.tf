@@ -9,14 +9,10 @@ terraform {
   }
 }
 
-provider "aws" {
-  region = var.aws_region
-}
-
 locals {
   common_tags = {
     Environment = var.environment
     ManagedBy   = "Terraform"
-    Project     = "CIS-Monitoring"
+    Project     = var.project_name
   }
 }

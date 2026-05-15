@@ -1,14 +1,13 @@
-# General
-variable "aws_region" {
-  description = "AWS region for all resources"
-  type        = string
-  default     = "ap-southeast-1"
-}
-
 variable "environment" {
   description = "Environment label (dev / staging / prod)"
   type        = string
   default     = "dev"
+}
+
+variable "project_name" {
+  description = "Project name for resource tagging and naming"
+  type        = string
+  default     = "cis-baseline"
 }
 
 variable "vpc_id" {

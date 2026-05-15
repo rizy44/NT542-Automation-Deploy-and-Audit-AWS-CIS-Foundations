@@ -29,9 +29,9 @@ environment-level variables, common tags, and module composition.
 
 The stack calls:
 
-- `modules/network`: builds the VPC topology.
-- `modules/compute`: deploys private EC2 workloads using network outputs.
-- `modules/Cloudtrail`: deploys CloudTrail, log buckets, KMS encryption, and
+- `infra/modules/network`: builds the VPC topology.
+- `infra/modules/compute`: deploys private EC2 workloads using network outputs.
+- `infra/modules/cloudtrail`: deploys CloudTrail, log buckets, KMS encryption, and
   logging controls, including AWS Config for the first CIS logging baseline.
 
 The current module directories remain, but they become true reusable Terraform
@@ -123,7 +123,7 @@ AWS Config and VPC Flow Logs are needed for CIS logging controls as well. VPC
 Flow Logs belong in the network module because they depend on the VPC. AWS
 Config is included in the CloudTrail/logging module for this first baseline in
 the active provider region. Full CIS 4.3 coverage across every enabled AWS
-region requires a later provider-alias composition or dedicated `modules/config`
+region requires a later provider-alias composition or dedicated `infra/modules/config`
 implementation that instantiates AWS Config region by region.
 
 ## Data Flow

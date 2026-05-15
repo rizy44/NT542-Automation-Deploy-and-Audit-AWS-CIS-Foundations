@@ -9,10 +9,6 @@ terraform {
   }
 }
 
-provider "aws" {
-  region = var.aws_region
-}
-
 data "aws_caller_identity" "current" {}
 
 data "aws_partition" "current" {}
@@ -26,6 +22,6 @@ locals {
   common_tags = {
     Environment = var.environment
     ManagedBy   = "Terraform"
-    Project     = "Storage"
+    Project     = var.project_name
   }
 }

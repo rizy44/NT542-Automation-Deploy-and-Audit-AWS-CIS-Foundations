@@ -4,7 +4,7 @@
 
 **Goal:** Refactor the Terraform project into a connected, production-like AWS baseline that supports CIS AWS Foundations Benchmark work.
 
-**Architecture:** The repository root becomes the deployable Terraform stack. It composes focused `network`, `compute`, and `Cloudtrail` modules using one naming/tagging model and passes outputs between modules. Network creates the VPC topology and VPC Flow Logs, compute deploys private hardened EC2 instances, and CloudTrail/logging creates audit logging, AWS Config, KMS, and S3 data event controls.
+**Architecture:** The repository root becomes the deployable Terraform stack. It composes focused `network`, `compute`, and `cloudtrail` modules using one naming/tagging model and passes outputs between modules. Network creates the VPC topology and VPC Flow Logs, compute deploys private hardened EC2 instances, and CloudTrail/logging creates audit logging, AWS Config, KMS, and S3 data event controls.
 
 **Tech Stack:** Terraform `>= 1.5.0`, AWS provider `~> 5.0`, AWS VPC, EC2, IAM, CloudTrail, CloudWatch Logs, KMS, S3, AWS Config.
 
@@ -18,9 +18,9 @@
 - Create `main.tf`: root module composition.
 - Create `outputs.tf`: root outputs for VPC, compute, and logging.
 - Create `terraform.tfvars.example`: root example values.
-- Modify `modules/network/*.tf`: convert network to a reusable VPC module with realistic subnets, route tables, NAT option, and VPC Flow Logs.
-- Modify `modules/compute/*.tf`: convert compute to private hardened EC2 workloads.
-- Modify `modules/Cloudtrail/*.tf`: add S3 access logging, ownership controls, CloudTrail data events, AWS Config, and consistent naming.
+- Modify `infra/modules/network/*.tf`: convert network to a reusable VPC module with realistic subnets, route tables, NAT option, and VPC Flow Logs.
+- Modify `infra/modules/compute/*.tf`: convert compute to private hardened EC2 workloads.
+- Modify `infra/modules/cloudtrail/*.tf`: add S3 access logging, ownership controls, CloudTrail data events, AWS Config, and consistent naming.
 - Modify module READMEs and examples to reflect root-driven usage.
 
 ---
@@ -170,7 +170,7 @@ Create `main.tf` with:
 
 ```hcl
 module "network" {
-  source = "./modules/network"
+  source = "./infra/modules/network"
 
   name_prefix        = local.name_prefix
   vpc_cidr           = var.vpc_cidr
@@ -179,7 +179,7 @@ module "network" {
 }
 
 module "compute" {
-  source = "./modules/compute"
+  source = "./infra/modules/compute"
 
   name_prefix        = local.name_prefix
   vpc_id             = module.network.vpc_id
@@ -191,7 +191,7 @@ module "compute" {
 }
 
 module "cloudtrail" {
-  source = "./modules/Cloudtrail"
+  source = "./infra/modules/cloudtrail"
 
   name_prefix = local.name_prefix
   common_tags = local.common_tags
@@ -225,20 +225,20 @@ instance_type      = "t3.micro"
 ### Task 2: Network Module Refactor
 
 **Files:**
-- Modify: `modules/network/variables.tf`
-- Modify: `modules/network/locals.tf`
-- Modify: `modules/network/provider.tf`
-- Modify: `modules/network/vpc.tf`
-- Modify: `modules/network/vpc_b.tf`
-- Modify: `modules/network/peering.tf`
-- Modify: `modules/network/nacl.tf`
-- Modify: `modules/network/outputs.tf`
-- Modify: `modules/network/terraform.tfvars.example`
-- Modify: `modules/network/README.md`
+- Modify: `infra/modules/network/variables.tf`
+- Modify: `infra/modules/network/locals.tf`
+- Modify: `infra/modules/network/provider.tf`
+- Modify: `infra/modules/network/vpc.tf`
+- Modify: `infra/modules/network/vpc_b.tf`
+- Modify: `infra/modules/network/peering.tf`
+- Modify: `infra/modules/network/nacl.tf`
+- Modify: `infra/modules/network/outputs.tf`
+- Modify: `infra/modules/network/terraform.tfvars.example`
+- Modify: `infra/modules/network/README.md`
 
 - [ ] **Step 1: Replace module inputs**
 
-Set `modules/network/variables.tf` to use:
+Set `infra/modules/network/variables.tf` to use:
 
 ```hcl
 variable "name_prefix" {
@@ -271,7 +271,7 @@ variable "common_tags" {
 
 - [ ] **Step 2: Replace module locals**
 
-Set `modules/network/locals.tf` to derive two AZs and subnet CIDRs:
+Set `infra/modules/network/locals.tf` to derive two AZs and subnet CIDRs:
 
 ```hcl
 locals {
@@ -291,11 +291,11 @@ locals {
 
 - [ ] **Step 3: Remove provider ownership from module**
 
-Keep `terraform.required_providers` and data sources in `modules/network/provider.tf`, but remove the `provider "aws"` block so the root provider owns region and default tags.
+Keep `terraform.required_providers` and data sources in `infra/modules/network/provider.tf`, but remove the `provider "aws"` block so the root provider owns region and default tags.
 
 - [ ] **Step 4: Replace VPC and subnet resources**
 
-Rewrite `modules/network/vpc.tf` to create:
+Rewrite `infra/modules/network/vpc.tf` to create:
 
 - `aws_vpc.main`
 - `aws_internet_gateway.main`
@@ -310,7 +310,7 @@ Use names such as `${var.name_prefix}-vpc-main`, `${var.name_prefix}-subnet-publ
 
 - [ ] **Step 5: Replace NACL rules with tier-specific defaults**
 
-Rewrite `modules/network/nacl.tf` to create one public NACL and one private NACL. Do not allow SSH, RDP, or SMB from `0.0.0.0/0`. Allow HTTP/HTTPS inbound to public subnets, ephemeral return traffic, and internal VPC traffic for private tiers.
+Rewrite `infra/modules/network/nacl.tf` to create one public NACL and one private NACL. Do not allow SSH, RDP, or SMB from `0.0.0.0/0`. Allow HTTP/HTTPS inbound to public subnets, ephemeral return traffic, and internal VPC traffic for private tiers.
 
 - [ ] **Step 6: Add VPC Flow Logs**
 
@@ -353,7 +353,7 @@ Add the matching IAM role policy for CloudWatch Logs write permissions.
 
 - [ ] **Step 7: Remove old two-VPC and peering resources**
 
-Make `modules/network/vpc_b.tf` and `modules/network/peering.tf` empty except for comments stating that the shared-services VPC is intentionally not part of this baseline.
+Make `infra/modules/network/vpc_b.tf` and `infra/modules/network/peering.tf` empty except for comments stating that the shared-services VPC is intentionally not part of this baseline.
 
 - [ ] **Step 8: Replace outputs**
 
@@ -366,14 +366,14 @@ Expose `vpc_id`, `vpc_cidr`, `public_subnet_ids`, `private_app_subnet_ids`,
 ### Task 3: Compute Module Hardening
 
 **Files:**
-- Modify: `modules/compute/variables.tf`
-- Modify: `modules/compute/locals.tf`
-- Modify: `modules/compute/provider.tf`
-- Modify: `modules/compute/security_groups.tf`
-- Modify: `modules/compute/ec2.tf`
-- Modify: `modules/compute/outputs.tf`
-- Modify: `modules/compute/terraform.tfvars.example`
-- Modify: `modules/compute/README.md`
+- Modify: `infra/modules/compute/variables.tf`
+- Modify: `infra/modules/compute/locals.tf`
+- Modify: `infra/modules/compute/provider.tf`
+- Modify: `infra/modules/compute/security_groups.tf`
+- Modify: `infra/modules/compute/ec2.tf`
+- Modify: `infra/modules/compute/outputs.tf`
+- Modify: `infra/modules/compute/terraform.tfvars.example`
+- Modify: `infra/modules/compute/README.md`
 
 - [ ] **Step 1: Replace compute variables**
 
@@ -447,15 +447,15 @@ instance profile name. Remove public IP and SSH command outputs.
 ### Task 4: CloudTrail And Logging Module Refactor
 
 **Files:**
-- Modify: `modules/Cloudtrail/variables.tf`
-- Modify: `modules/Cloudtrail/main.tf`
-- Modify: `modules/Cloudtrail/s3.tf`
-- Modify: `modules/Cloudtrail/kms.tf`
-- Modify: `modules/Cloudtrail/cloudtrail.tf`
-- Create: `modules/Cloudtrail/config.tf`
-- Modify: `modules/Cloudtrail/outputs.tf`
-- Modify: `modules/Cloudtrail/terraform.tfvars.example`
-- Modify: `modules/Cloudtrail/README.md`
+- Modify: `infra/modules/cloudtrail/variables.tf`
+- Modify: `infra/modules/cloudtrail/main.tf`
+- Modify: `infra/modules/cloudtrail/s3.tf`
+- Modify: `infra/modules/cloudtrail/kms.tf`
+- Modify: `infra/modules/cloudtrail/cloudtrail.tf`
+- Create: `infra/modules/cloudtrail/config.tf`
+- Modify: `infra/modules/cloudtrail/outputs.tf`
+- Modify: `infra/modules/cloudtrail/terraform.tfvars.example`
+- Modify: `infra/modules/cloudtrail/README.md`
 
 - [ ] **Step 1: Replace module variables**
 
@@ -546,10 +546,10 @@ AWS Config delivery channel name.
 ### Task 5: Documentation And Examples
 
 **Files:**
-- Modify: `modules/network/README.md`
-- Modify: `modules/compute/README.md`
-- Modify: `modules/Cloudtrail/README.md`
-- Modify: `modules/*/terraform.tfvars.example`
+- Modify: `infra/modules/network/README.md`
+- Modify: `infra/modules/compute/README.md`
+- Modify: `infra/modules/cloudtrail/README.md`
+- Modify: `infra/modules/*/terraform.tfvars.example`
 
 - [ ] **Step 1: Update module READMEs**
 

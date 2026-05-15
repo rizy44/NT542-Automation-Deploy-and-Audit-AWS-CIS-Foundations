@@ -83,6 +83,66 @@ variable "instance_type" {
   default     = "t3.micro"
 }
 
+variable "rds_master_password" {
+  description = "Master password for the storage RDS instance. Set with TF_VAR_rds_master_password or a secure Terraform variable."
+  type        = string
+  sensitive   = true
+  nullable    = false
+
+  validation {
+    condition     = length(var.rds_master_password) >= 16
+    error_message = "rds_master_password must be at least 16 characters."
+  }
+}
+
+variable "cloudtrail_log_group_name" {
+  description = "CloudWatch Log Group name that receives CloudTrail events for CIS monitoring. Defaults to /aws/cloudtrail/<project>-<environment>."
+  type        = string
+  default     = null
+}
+
+variable "monitor_sns_topic_arn" {
+  description = "Existing SNS topic ARN for CIS monitoring alarms. Leave empty to create a topic."
+  type        = string
+  default     = ""
+}
+
+variable "monitor_sns_topic_name" {
+  description = "SNS topic name used by CIS monitoring alarms."
+  type        = string
+  default     = "cis-monitoring-alerts"
+}
+
+variable "monitor_alarm_notification_emails" {
+  description = "Email endpoints for SNS alarm notifications."
+  type        = list(string)
+  default     = []
+}
+
+variable "monitor_metric_namespace" {
+  description = "CloudWatch metric namespace for CIS monitoring filters."
+  type        = string
+  default     = "CISBenchmark"
+}
+
+variable "enable_security_hub" {
+  description = "Whether to enable AWS Security Hub from the monitor module."
+  type        = bool
+  default     = false
+}
+
+variable "monitor_enabled_controls" {
+  description = "Optional list of CIS monitoring control keys to enable. Empty list enables all supported controls."
+  type        = list(string)
+  default     = []
+}
+
+variable "monitor_create_metric_filters" {
+  description = "Whether the monitor module should create CloudWatch metric filters and alarms."
+  type        = bool
+  default     = true
+}
+
 variable "tags" {
   description = "Additional tags to merge with baseline common tags."
   type        = map(string)
