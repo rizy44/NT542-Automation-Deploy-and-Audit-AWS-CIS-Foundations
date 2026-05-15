@@ -59,7 +59,7 @@ def get_account_id(profile_name=None):
         return None
 
 
-def get_project_vpcs(profile_name=None, regions=None, project_name="security-audit", environment="lab"):
+def get_project_vpcs(profile_name=None, regions=None, project_name="cis-baseline", environment="dev"):
     """Return VPCs that match the project tags across the selected regions."""
     regions = regions or get_all_regions(profile_name=profile_name)
     vpcs = []
@@ -78,7 +78,7 @@ def get_project_vpcs(profile_name=None, regions=None, project_name="security-aud
     return vpcs
 
 
-def get_project_subnets(profile_name=None, regions=None, project_name="security-audit", environment="lab", subnet_type=None):
+def get_project_subnets(profile_name=None, regions=None, project_name="cis-baseline", environment="dev", subnet_type=None):
     """Return subnets that match the project tags across the selected regions."""
     regions = regions or get_all_regions(profile_name=profile_name)
     subnets = []

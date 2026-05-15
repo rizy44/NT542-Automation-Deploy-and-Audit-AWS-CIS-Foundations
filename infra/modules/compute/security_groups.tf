@@ -17,15 +17,13 @@ resource "aws_vpc_security_group_ingress_rule" "app_http" {
   cidr_ipv4   = var.vpc_cidr
 }
 
-resource "aws_vpc_security_group_ingress_rule" "app_ssh_admin" {
-  for_each = toset(var.admin_cidr_blocks)
-
+resource "aws_vpc_security_group_ingress_rule" "app_smb_vpc_only" {
   security_group_id = aws_security_group.app.id
 
-  from_port   = 22
-  to_port     = 22
+  from_port   = 445
+  to_port     = 445
   ip_protocol = "tcp"
-  cidr_ipv4   = each.value
+  cidr_ipv4   = var.vpc_cidr
 }
 
 resource "aws_vpc_security_group_egress_rule" "app_all_ipv4" {

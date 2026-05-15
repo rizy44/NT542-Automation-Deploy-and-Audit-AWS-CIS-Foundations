@@ -8,6 +8,26 @@ resource "aws_vpc" "main" {
   })
 }
 
+resource "aws_default_security_group" "main" {
+  vpc_id = aws_vpc.main.id
+
+  tags = merge(local.module_tags, {
+    Name = "${var.name_prefix}-sg-default"
+  })
+}
+
+resource "aws_default_network_acl" "main" {
+  default_network_acl_id = aws_vpc.main.default_network_acl_id
+
+  lifecycle {
+    ignore_changes = [subnet_ids]
+  }
+
+  tags = merge(local.module_tags, {
+    Name = "${var.name_prefix}-nacl-default"
+  })
+}
+
 resource "aws_internet_gateway" "main" {
   vpc_id = aws_vpc.main.id
 

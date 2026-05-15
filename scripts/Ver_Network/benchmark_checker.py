@@ -41,7 +41,7 @@ CONTROLS = {
 
 
 class BenchmarkChecker:
-    def __init__(self, profile_name=None, regions=None, verbose=False, project_name="security-audit", environment="lab"):
+    def __init__(self, profile_name=None, regions=None, verbose=False, project_name="cis-baseline", environment="dev"):
         self.profile_name = profile_name
         self.regions = regions
         self.verbose = verbose
@@ -58,8 +58,19 @@ class BenchmarkChecker:
             return None
 
         if not self.regions:
-            logger.info("Discovering AWS regions...")
-            self.regions = get_all_regions(profile_name=self.profile_name)
+            logger.info("Discovering AWS regions in use (based on VPCs)...")
+            from scripts.Ver_Network.config import get_project_vpcs
+            vpcs = get_project_vpcs(
+                profile_name=self.profile_name,
+                project_name=self.project_name,
+                environment=self.environment,
+            )
+            self.regions = list(set([vpc["region"] for vpc in vpcs]))
+            
+            if not self.regions:
+                logger.warning("No VPCs found. Checking all regions as fallback.")
+                from scripts.Ver_Network.config import get_all_regions
+                self.regions = get_all_regions(profile_name=self.profile_name)
 
         return BenchmarkReport(account_id, self.regions)
 
@@ -119,8 +130,8 @@ Examples:
     parser.add_argument("--regions", default=None, help="Specific regions to check (comma-separated)")
     parser.add_argument("--profile", default=None, help="AWS profile name")
     parser.add_argument("--output", default=None, help="Output file path for JSON report")
-    parser.add_argument("--project-name", default="security-audit", help="Project tag value used to find resources")
-    parser.add_argument("--environment", default="lab", help="Environment tag value used to find resources")
+    parser.add_argument("--project-name", default="cis-baseline", help="Project tag value used to find resources")
+    parser.add_argument("--environment", default="dev", help="Environment tag value used to find resources")
     parser.add_argument("-v", "--verbose", action="store_true", help="Verbose output")
 
     args = parser.parse_args()

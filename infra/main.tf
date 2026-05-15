@@ -34,8 +34,8 @@ module "storage" {
   vpc_id                   = module.network.vpc_id
   private_subnet_ids       = module.network.private_data_subnet_ids
   vpc_cidr_block           = module.network.vpc_cidr
-  data_bucket_name_prefix  = "${local.name_prefix}-storage-data"
-  macie_bucket_name_prefix = "${local.name_prefix}-storage-macie-findings"
+  data_bucket_name_prefix  = "${local.name_prefix}-data"
+  macie_bucket_name_prefix = "${local.name_prefix}-macie"
   rds_master_password      = var.rds_master_password
 }
 

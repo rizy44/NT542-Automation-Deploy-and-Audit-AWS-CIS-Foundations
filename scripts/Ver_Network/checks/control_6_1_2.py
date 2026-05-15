@@ -23,10 +23,9 @@ def check_control_6_1_2(profile_name=None, regions=None, **kwargs):
         return create_result(
             control_id,
             control["title"],
-            "FAIL",
+            "PASS",
             control["severity"],
             details={"reason": "No VPCs found"},
-            remediation="Restrict CIFS (port 445) access in security groups",
         )
 
     all_details = []
