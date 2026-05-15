@@ -42,12 +42,6 @@ Run selected controls:
 python benchmark_checker.py --controls 4.1,4.2,4.3
 ```
 
-Old 3.x numbering is accepted for compatibility and is mapped to v6 controls:
-
-```bash
-python benchmark_checker.py --controls 3.1,3.2,3.3
-```
-
 Use a profile, selected regions, verbose logs, and JSON output:
 
 ```bash
@@ -94,6 +88,3 @@ Ver_Cloudtrail/
   tests/
     test_cis_v6_controls.py
 ```
-
-The `control_3_x.py` files are compatibility wrappers only. New code should use
-the `control_4_x.py` modules.
