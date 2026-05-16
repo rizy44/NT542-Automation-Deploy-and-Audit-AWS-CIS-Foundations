@@ -6,6 +6,11 @@ module "network" {
   enable_nat_gateway = var.enable_nat_gateway
   enable_flow_logs   = !var.learner_lab_mode
   common_tags        = local.common_tags
+  enable_vpc_peering = var.enable_vpc_peering
+  peer_vpc_id        = var.peer_vpc_id
+  peer_vpc_cidr      = var.peer_vpc_cidr
+  peer_route_table_ids = var.peer_route_table_ids
+  peer_auto_accept   = var.peer_auto_accept
 }
 
 module "compute" {

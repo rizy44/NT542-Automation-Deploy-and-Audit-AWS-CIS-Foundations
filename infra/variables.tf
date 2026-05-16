@@ -55,6 +55,38 @@ variable "vpc_cidr" {
   default     = "10.0.0.0/16"
 }
 
+variable "enable_vpc_peering" {
+  description = "Whether to create VPC peering routes between the hub VPC and a spoke VPC."
+  type        = bool
+  default     = false
+}
+
+variable "peer_vpc_id" {
+  description = "ID of the spoke/peer VPC to connect to the hub VPC."
+  type        = string
+  default     = null
+  nullable    = true
+}
+
+variable "peer_vpc_cidr" {
+  description = "CIDR block of the spoke/peer VPC."
+  type        = string
+  default     = null
+  nullable    = true
+}
+
+variable "peer_route_table_ids" {
+  description = "Route table IDs in the spoke VPC that should receive a return route to the hub VPC."
+  type        = list(string)
+  default     = []
+}
+
+variable "peer_auto_accept" {
+  description = "Whether to auto-accept the peering connection. Keep true for same-account, same-region deployments."
+  type        = bool
+  default     = true
+}
+
 variable "enable_nat_gateway" {
   description = "Whether to create NAT gateway resources for private subnet egress."
   type        = bool

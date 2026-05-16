@@ -37,3 +37,8 @@ output "vpc_flow_log_group_name" {
   description = "Name of the CloudWatch Log Group used by VPC Flow Logs."
   value       = try(aws_cloudwatch_log_group.vpc_flow_logs[0].name, null)
 }
+
+output "vpc_peering_connection_id" {
+  description = "ID of the hub-to-peer VPC peering connection, if enabled."
+  value       = try(aws_vpc_peering_connection.hub_to_peer[0].id, null)
+}
