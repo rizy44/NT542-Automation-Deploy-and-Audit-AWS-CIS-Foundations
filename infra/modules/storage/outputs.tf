@@ -47,12 +47,12 @@ output "data_bucket_arn" {
 
 output "macie_findings_bucket_name" {
   description = "Name of the Macie findings S3 bucket"
-  value       = aws_s3_bucket.macie_findings.id
+  value       = try(aws_s3_bucket.macie_findings[0].id, null)
 }
 
 output "macie_findings_bucket_arn" {
   description = "ARN of the Macie findings S3 bucket"
-  value       = aws_s3_bucket.macie_findings.arn
+  value       = try(aws_s3_bucket.macie_findings[0].arn, null)
 }
 
 # ---------------------------------------------------------------------------
@@ -61,12 +61,12 @@ output "macie_findings_bucket_arn" {
 
 output "macie_classification_job_id" {
   description = "ID of the Macie daily classification job"
-  value       = aws_macie2_classification_job.data_bucket_scan.id
+  value       = try(aws_macie2_classification_job.data_bucket_scan[0].id, null)
 }
 
 output "macie_custom_identifier_id" {
   description = "ID of the Macie custom PII data identifier"
-  value       = aws_macie2_custom_data_identifier.pii.id
+  value       = try(aws_macie2_custom_data_identifier.pii[0].id, null)
 }
 
 # ---------------------------------------------------------------------------

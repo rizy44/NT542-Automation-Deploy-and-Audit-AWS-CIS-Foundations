@@ -25,12 +25,12 @@ output "cloudtrail_kms_key_arn" {
 
 output "config_recorder_name" {
   description = "Name of the AWS Config configuration recorder."
-  value       = aws_config_configuration_recorder.main.name
+  value       = try(aws_config_configuration_recorder.main[0].name, null)
 }
 
 output "config_delivery_channel_name" {
   description = "Name of the AWS Config delivery channel."
-  value       = aws_config_delivery_channel.main.name
+  value       = try(aws_config_delivery_channel.main[0].name, null)
 }
 
 output "config_log_bucket_name" {

@@ -94,6 +94,8 @@ resource "aws_s3_bucket_policy" "data" {
 
 
 resource "aws_s3_bucket" "macie_findings" {
+  count = var.enable_macie ? 1 : 0
+
   bucket        = local.macie_bucket_name
   force_destroy = true
 
@@ -104,7 +106,9 @@ resource "aws_s3_bucket" "macie_findings" {
 }
 
 resource "aws_s3_bucket_public_access_block" "macie_findings" {
-  bucket = aws_s3_bucket.macie_findings.id
+  count = var.enable_macie ? 1 : 0
+
+  bucket = aws_s3_bucket.macie_findings[0].id
 
   block_public_acls       = true
   block_public_policy     = true
@@ -113,7 +117,9 @@ resource "aws_s3_bucket_public_access_block" "macie_findings" {
 }
 
 resource "aws_s3_bucket_versioning" "macie_findings" {
-  bucket = aws_s3_bucket.macie_findings.id
+  count = var.enable_macie ? 1 : 0
+
+  bucket = aws_s3_bucket.macie_findings[0].id
 
   versioning_configuration {
     status = "Enabled"
@@ -121,7 +127,9 @@ resource "aws_s3_bucket_versioning" "macie_findings" {
 }
 
 resource "aws_s3_bucket_server_side_encryption_configuration" "macie_findings" {
-  bucket = aws_s3_bucket.macie_findings.id
+  count = var.enable_macie ? 1 : 0
+
+  bucket = aws_s3_bucket.macie_findings[0].id
 
   rule {
     apply_server_side_encryption_by_default {
@@ -133,7 +141,9 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "macie_findings" {
 }
 
 resource "aws_s3_bucket_policy" "macie_findings" {
-  bucket     = aws_s3_bucket.macie_findings.id
+  count = var.enable_macie ? 1 : 0
+
+  bucket     = aws_s3_bucket.macie_findings[0].id
   depends_on = [aws_s3_bucket_public_access_block.macie_findings]
 
   policy = jsonencode({
@@ -146,7 +156,7 @@ resource "aws_s3_bucket_policy" "macie_findings" {
           Service = "macie.amazonaws.com"
         }
         Action   = "s3:PutObject"
-        Resource = "${aws_s3_bucket.macie_findings.arn}/*"
+        Resource = "${aws_s3_bucket.macie_findings[0].arn}/*"
         Condition = {
           StringEquals = {
             "aws:SourceAccount" = data.aws_caller_identity.current.account_id
@@ -160,7 +170,7 @@ resource "aws_s3_bucket_policy" "macie_findings" {
           Service = "macie.amazonaws.com"
         }
         Action   = "s3:GetBucketLocation"
-        Resource = aws_s3_bucket.macie_findings.arn
+        Resource = aws_s3_bucket.macie_findings[0].arn
         Condition = {
           StringEquals = {
             "aws:SourceAccount" = data.aws_caller_identity.current.account_id
@@ -173,8 +183,8 @@ resource "aws_s3_bucket_policy" "macie_findings" {
         Principal = "*"
         Action    = "s3:*"
         Resource = [
-          aws_s3_bucket.macie_findings.arn,
-          "${aws_s3_bucket.macie_findings.arn}/*"
+          aws_s3_bucket.macie_findings[0].arn,
+          "${aws_s3_bucket.macie_findings[0].arn}/*"
         ]
         Condition = {
           Bool = {

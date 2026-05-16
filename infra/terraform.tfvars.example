@@ -7,6 +7,7 @@ compliance_scope = "cis-aws-foundations"
 
 vpc_cidr           = "10.0.0.0/16"
 enable_nat_gateway = true
+learner_lab_mode   = false
 admin_cidr_blocks  = []
 instance_type      = "t3.micro"
 

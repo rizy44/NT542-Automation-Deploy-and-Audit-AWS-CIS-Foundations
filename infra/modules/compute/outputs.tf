@@ -20,10 +20,10 @@ output "app_instance_subnet_ids" {
 
 output "app_instance_profile_name" {
   description = "IAM instance profile name attached to app instances."
-  value       = aws_iam_instance_profile.app.name
+  value       = try(aws_iam_instance_profile.app[0].name, null)
 }
 
 output "app_instance_role_name" {
   description = "IAM role name used by app instances."
-  value       = aws_iam_role.app_instance.name
+  value       = try(aws_iam_role.app_instance[0].name, null)
 }

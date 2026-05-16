@@ -30,10 +30,10 @@ output "nat_gateway_ids" {
 
 output "vpc_flow_log_id" {
   description = "ID of the VPC Flow Log."
-  value       = aws_flow_log.main.id
+  value       = try(aws_flow_log.main[0].id, null)
 }
 
 output "vpc_flow_log_group_name" {
   description = "Name of the CloudWatch Log Group used by VPC Flow Logs."
-  value       = aws_cloudwatch_log_group.vpc_flow_logs.name
+  value       = try(aws_cloudwatch_log_group.vpc_flow_logs[0].name, null)
 }

@@ -61,6 +61,12 @@ variable "enable_nat_gateway" {
   default     = true
 }
 
+variable "learner_lab_mode" {
+  description = "Disable resources that AWS Learner Lab commonly blocks, such as custom IAM roles and Macie."
+  type        = bool
+  default     = false
+}
+
 variable "admin_cidr_blocks" {
   description = "CIDR blocks allowed administrative access."
   type        = list(string)

@@ -29,6 +29,12 @@ variable "instance_type" {
   default     = "t3.micro"
 }
 
+variable "enable_iam_profile" {
+  description = "Whether to create and attach an IAM instance profile for app instances."
+  type        = bool
+  default     = true
+}
+
 variable "admin_cidr_blocks" {
   description = "Optional administrator CIDR blocks allowed to SSH to app instances."
   type        = list(string)

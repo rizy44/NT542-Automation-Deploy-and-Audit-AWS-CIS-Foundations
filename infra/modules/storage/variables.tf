@@ -51,6 +51,12 @@ variable "macie_pii_regex" {
   default     = "\\b\\d{3}-\\d{2}-\\d{4}\\b"
 }
 
+variable "enable_macie" {
+  description = "Whether to enable Macie resources. Disable in AWS Learner Lab when macie2:EnableMacie is blocked."
+  type        = bool
+  default     = true
+}
+
 # RDS (MySQL)
 variable "rds_engine_version" {
   description = "MySQL engine version"
@@ -110,6 +116,12 @@ variable "rds_skip_final_snapshot" {
   description = "Skip the final DB snapshot when deleting the instance"
   type        = bool
   default     = false
+}
+
+variable "enable_rds_monitoring" {
+  description = "Whether to create the IAM role for RDS enhanced monitoring and enable enhanced monitoring."
+  type        = bool
+  default     = true
 }
 
 # EFS

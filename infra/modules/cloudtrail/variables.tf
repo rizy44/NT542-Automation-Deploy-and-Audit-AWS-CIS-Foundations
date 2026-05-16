@@ -36,6 +36,12 @@ variable "config_snapshot_delivery_frequency" {
   }
 }
 
+variable "enable_config" {
+  description = "Whether to create AWS Config resources and the IAM role required by the recorder."
+  type        = bool
+  default     = true
+}
+
 variable "enable_s3_data_event_read_logging" {
   description = "Whether CloudTrail records S3 object read data events."
   type        = bool

@@ -31,7 +31,7 @@ resource "aws_instance" "app" {
   subnet_id                   = var.private_subnet_ids[count.index]
   vpc_security_group_ids      = [aws_security_group.app.id]
   associate_public_ip_address = false
-  iam_instance_profile        = aws_iam_instance_profile.app.name
+  iam_instance_profile        = var.enable_iam_profile ? aws_iam_instance_profile.app[0].name : null
   monitoring                  = true
 
   metadata_options {

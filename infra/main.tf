@@ -4,6 +4,7 @@ module "network" {
   name_prefix        = local.name_prefix
   vpc_cidr           = var.vpc_cidr
   enable_nat_gateway = var.enable_nat_gateway
+  enable_flow_logs   = !var.learner_lab_mode
   common_tags        = local.common_tags
 }
 
@@ -16,14 +17,16 @@ module "compute" {
   vpc_cidr           = module.network.vpc_cidr
   admin_cidr_blocks  = var.admin_cidr_blocks
   instance_type      = var.instance_type
+  enable_iam_profile = !var.learner_lab_mode
   common_tags        = local.common_tags
 }
 
 module "cloudtrail" {
   source = "./modules/cloudtrail"
 
-  name_prefix = local.name_prefix
-  common_tags = local.common_tags
+  name_prefix   = local.name_prefix
+  common_tags   = local.common_tags
+  enable_config = !var.learner_lab_mode
 }
 
 module "storage" {
@@ -37,6 +40,8 @@ module "storage" {
   data_bucket_name_prefix  = "${local.name_prefix}-data"
   macie_bucket_name_prefix = "${local.name_prefix}-macie"
   rds_master_password      = var.rds_master_password
+  enable_macie             = !var.learner_lab_mode
+  enable_rds_monitoring    = !var.learner_lab_mode
 }
 
 module "monitor" {

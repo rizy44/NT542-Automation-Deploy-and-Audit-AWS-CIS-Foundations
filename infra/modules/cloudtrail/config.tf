@@ -12,6 +12,8 @@ data "aws_iam_policy_document" "config_assume_role" {
 }
 
 resource "aws_iam_role" "config" {
+  count = var.enable_config ? 1 : 0
+
   name               = "${var.name_prefix}-config-recorder"
   assume_role_policy = data.aws_iam_policy_document.config_assume_role.json
 
@@ -21,13 +23,17 @@ resource "aws_iam_role" "config" {
 }
 
 resource "aws_iam_role_policy_attachment" "config" {
-  role       = aws_iam_role.config.name
+  count = var.enable_config ? 1 : 0
+
+  role       = aws_iam_role.config[0].name
   policy_arn = "arn:${data.aws_partition.current.partition}:iam::aws:policy/service-role/AWS_ConfigRole"
 }
 
 resource "aws_config_configuration_recorder" "main" {
+  count = var.enable_config ? 1 : 0
+
   name     = "${var.name_prefix}-config-recorder"
-  role_arn = aws_iam_role.config.arn
+  role_arn = aws_iam_role.config[0].arn
 
   recording_group {
     all_supported                 = true
@@ -40,6 +46,8 @@ resource "aws_config_configuration_recorder" "main" {
 }
 
 resource "aws_config_delivery_channel" "main" {
+  count = var.enable_config ? 1 : 0
+
   name           = "${var.name_prefix}-config-delivery"
   s3_bucket_name = aws_s3_bucket.config_logs.id
 
@@ -57,7 +65,9 @@ resource "aws_config_delivery_channel" "main" {
 }
 
 resource "aws_config_configuration_recorder_status" "main" {
-  name       = aws_config_configuration_recorder.main.name
+  count = var.enable_config ? 1 : 0
+
+  name       = aws_config_configuration_recorder.main[0].name
   is_enabled = true
 
   depends_on = [

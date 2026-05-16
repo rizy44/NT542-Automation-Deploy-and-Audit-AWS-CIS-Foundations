@@ -81,6 +81,8 @@ resource "aws_db_option_group" "mysql8_audit" {
 
 
 resource "aws_iam_role" "rds_monitoring" {
+  count = var.enable_rds_monitoring ? 1 : 0
+
   name        = "storage-rds-monitoring-${var.environment}"
   description = "Allows RDS to push enhanced monitoring metrics to CloudWatch"
 
@@ -102,7 +104,9 @@ resource "aws_iam_role" "rds_monitoring" {
 }
 
 resource "aws_iam_role_policy_attachment" "rds_monitoring" {
-  role       = aws_iam_role.rds_monitoring.name
+  count = var.enable_rds_monitoring ? 1 : 0
+
+  role       = aws_iam_role.rds_monitoring[0].name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonRDSEnhancedMonitoringRole"
 }
 
@@ -145,8 +149,8 @@ resource "aws_db_instance" "mysql" {
   parameter_group_name   = aws_db_parameter_group.mysql8.name
   option_group_name      = aws_db_option_group.mysql8_audit.name
 
-  monitoring_interval = 60
-  monitoring_role_arn = aws_iam_role.rds_monitoring.arn
+  monitoring_interval = var.enable_rds_monitoring ? 60 : 0
+  monitoring_role_arn = var.enable_rds_monitoring ? aws_iam_role.rds_monitoring[0].arn : null
 
   performance_insights_enabled          = true
   performance_insights_kms_key_id       = aws_kms_key.rds.arn

@@ -29,8 +29,16 @@ report.json
 /scripts/Ver_Cloudtrail/__pycache__/
 /scripts/Ver_Cloudtrail/.pytest_cache/
 
+
+
 #Terraform
 .terraform/
 **/.terraform/
-*.tfstate
-*.tfstate.backup
+/infra/*.tfstate
+/infra/*.tfstate.backup
+*.lock.hcl
+/infra/.terraform/
+/infra/.terraform.tfvars
+# Ignore Terraform variable files, but keep example files
+*.tfvars
+!*.tfvars.example

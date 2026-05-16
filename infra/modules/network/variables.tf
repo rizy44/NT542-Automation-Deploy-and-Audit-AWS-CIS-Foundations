@@ -25,6 +25,12 @@ variable "enable_nat_gateway" {
   default     = true
 }
 
+variable "enable_flow_logs" {
+  description = "Whether to create VPC Flow Logs and the IAM role required to deliver them."
+  type        = bool
+  default     = true
+}
+
 variable "common_tags" {
   description = "Tags applied to all network resources."
   type        = map(string)
