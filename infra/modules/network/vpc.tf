@@ -198,9 +198,9 @@ resource "aws_subnet" "vpc_b_private" {
 
 # peering between main VPC (aws_vpc.main) and vpc_b
 resource "aws_vpc_peering_connection" "main_to_b" {
-  vpc_id        = aws_vpc.main.id
-  peer_vpc_id   = aws_vpc.vpc_b.id
-  auto_accept   = true
+  vpc_id      = aws_vpc.main.id
+  peer_vpc_id = aws_vpc.vpc_b.id
+  auto_accept = true
 
   tags = merge(local.module_tags, {
     Name = "${var.name_prefix}-peering-a-b"
@@ -209,9 +209,9 @@ resource "aws_vpc_peering_connection" "main_to_b" {
 
 # Add route in VPC A private route tables to VPC B (vulnerability deliberately open)
 resource "aws_route" "vpc_a_to_vpc_b" {
-  for_each = toset(aws_route_table.private_app[*].id)
+  count = length(aws_route_table.private_app)
 
-  route_table_id            = each.value
+  route_table_id            = aws_route_table.private_app[count.index].id
   destination_cidr_block    = "10.1.0.0/16"
   vpc_peering_connection_id = aws_vpc_peering_connection.main_to_b.id
 
