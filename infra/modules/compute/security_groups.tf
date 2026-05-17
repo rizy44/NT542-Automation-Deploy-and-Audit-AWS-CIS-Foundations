@@ -39,3 +39,46 @@ resource "aws_vpc_security_group_egress_rule" "app_all_ipv6" {
   ip_protocol = "-1"
   cidr_ipv6   = "::/0"
 }
+
+# Security group for peer VPC (VPC B) test instance
+resource "aws_security_group" "peer" {
+  count       = var.create_peer_resources ? 1 : 0
+  name        = "${var.name_prefix}-sg-peer"
+  description = "Security group in VPC B allowing ICMP and SSH from VPC A"
+  vpc_id      = var.peer_vpc_id
+
+  tags = merge(local.module_tags, {
+    Name = "${var.name_prefix}-sg-peer"
+  })
+}
+
+resource "aws_security_group_rule" "peer_icmp_in" {
+  count             = var.create_peer_resources ? 1 : 0
+  type              = "ingress"
+  from_port         = -1
+  to_port           = -1
+  protocol          = "icmp"
+  cidr_blocks       = [var.vpc_cidr]
+  security_group_id = aws_security_group.peer[0].id
+}
+
+resource "aws_security_group_rule" "peer_ssh_in" {
+  count             = var.create_peer_resources ? 1 : 0
+  type              = "ingress"
+  from_port         = 22
+  to_port           = 22
+  protocol          = "tcp"
+  cidr_blocks       = [var.vpc_cidr]
+  security_group_id = aws_security_group.peer[0].id
+}
+
+resource "aws_security_group_rule" "peer_egress_all" {
+  count             = var.create_peer_resources ? 1 : 0
+  type              = "egress"
+  from_port         = 0
+  to_port           = 0
+  protocol          = "-1"
+  cidr_blocks       = ["0.0.0.0/0"]
+  ipv6_cidr_blocks  = ["::/0"]
+  security_group_id = aws_security_group.peer[0].id
+}

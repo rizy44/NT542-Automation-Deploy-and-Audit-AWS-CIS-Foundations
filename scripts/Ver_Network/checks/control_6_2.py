@@ -14,6 +14,9 @@ def is_dangerous_nacl_rule(rule):
     if rule.get("Egress"):
         return False
 
+    if rule.get("RuleAction") != "allow":
+        return False
+
     cidr_block = rule.get("CidrBlock")
     if cidr_block != "0.0.0.0/0":
         return False
@@ -89,6 +92,7 @@ def check_control_6_2(profile_name=None, regions=None, **kwargs):
             "noncompliant_nacls": noncompliant_nacls,
             "by_nacl": all_details,
         },
-        resource_id=",".join(compliant_nacls) if compliant_nacls else None,
+        # Ưu tiên in ra các NACL bị lỗi nếu FAIL. Nếu PASS thì mới in ra các NACL an toàn.
+        resource_id=",".join(noncompliant_nacls) if status == "FAIL" else ",".join(compliant_nacls),
         remediation="Remove NACL rules that allow SSH/RDP from 0.0.0.0/0" if status == "FAIL" else None,
     )

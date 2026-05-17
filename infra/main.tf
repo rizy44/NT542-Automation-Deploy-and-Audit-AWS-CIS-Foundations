@@ -6,11 +6,7 @@ module "network" {
   enable_nat_gateway = var.enable_nat_gateway
   enable_flow_logs   = !var.learner_lab_mode
   common_tags        = local.common_tags
-  enable_vpc_peering = var.enable_vpc_peering
-  peer_vpc_id        = var.peer_vpc_id
-  peer_vpc_cidr      = var.peer_vpc_cidr
-  peer_route_table_ids = var.peer_route_table_ids
-  peer_auto_accept   = var.peer_auto_accept
+  # VPC peering and VPC B are now managed internally by the network module
 }
 
 module "compute" {
@@ -20,6 +16,11 @@ module "compute" {
   vpc_id             = module.network.vpc_id
   private_subnet_ids = module.network.private_app_subnet_ids
   vpc_cidr           = module.network.vpc_cidr
+  # Pass VPC B references for compute to provision test instance in the spoke
+  peer_vpc_id              = module.network.vpc_b_id
+  peer_private_subnet_id   = module.network.vpc_b_private_subnet_id
+  peer_vpc_cidr            = module.network.vpc_b_cidr
+  create_peer_resources    = true
   admin_cidr_blocks  = var.admin_cidr_blocks
   instance_type      = var.instance_type
   enable_iam_profile = !var.learner_lab_mode

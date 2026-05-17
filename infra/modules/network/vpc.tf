@@ -16,6 +16,14 @@ resource "aws_default_security_group" "main" {
   })
 }
 
+resource "aws_default_security_group" "vpc_b_default" {
+  vpc_id = aws_vpc.vpc_b.id
+
+  tags = merge(local.module_tags, {
+    Name = "${var.name_prefix}-sg-default-vpc-b"
+  })
+}
+
 resource "aws_default_network_acl" "main" {
   default_network_acl_id = aws_vpc.main.default_network_acl_id
 
@@ -162,4 +170,72 @@ resource "aws_route_table_association" "private_data" {
 
   subnet_id      = aws_subnet.private_data[count.index].id
   route_table_id = aws_route_table.private_data[count.index].id
+}
+
+#########################
+# VPC B (spoke) for lab
+#########################
+
+resource "aws_vpc" "vpc_b" {
+  cidr_block           = "10.1.0.0/16"
+  enable_dns_support   = true
+  enable_dns_hostnames = true
+
+  tags = merge(local.module_tags, {
+    Name = "${var.name_prefix}-vpc-b"
+  })
+}
+
+resource "aws_subnet" "vpc_b_private" {
+  vpc_id            = aws_vpc.vpc_b.id
+  cidr_block        = "10.1.1.0/24"
+  availability_zone = local.az_names[0]
+
+  tags = merge(local.module_tags, {
+    Name = "${var.name_prefix}-vpc-b-subnet-private-a"
+  })
+}
+
+# peering between main VPC (aws_vpc.main) and vpc_b
+resource "aws_vpc_peering_connection" "main_to_b" {
+  vpc_id        = aws_vpc.main.id
+  peer_vpc_id   = aws_vpc.vpc_b.id
+  auto_accept   = true
+
+  tags = merge(local.module_tags, {
+    Name = "${var.name_prefix}-peering-a-b"
+  })
+}
+
+# Add route in VPC A private route tables to VPC B (vulnerability deliberately open)
+resource "aws_route" "vpc_a_to_vpc_b" {
+  for_each = toset(aws_route_table.private_app[*].id)
+
+  route_table_id            = each.value
+  destination_cidr_block    = "10.1.0.0/16"
+  vpc_peering_connection_id = aws_vpc_peering_connection.main_to_b.id
+
+  depends_on = [aws_vpc_peering_connection.main_to_b]
+}
+
+# Route table for VPC B and route back to VPC A
+resource "aws_route_table" "vpc_b_private" {
+  vpc_id = aws_vpc.vpc_b.id
+
+  tags = merge(local.module_tags, {
+    Name = "${var.name_prefix}-vpc-b-rt-private"
+  })
+}
+
+resource "aws_route" "vpc_b_to_vpc_a" {
+  route_table_id            = aws_route_table.vpc_b_private.id
+  destination_cidr_block    = aws_vpc.main.cidr_block
+  vpc_peering_connection_id = aws_vpc_peering_connection.main_to_b.id
+
+  depends_on = [aws_vpc_peering_connection.main_to_b]
+}
+
+resource "aws_route_table_association" "vpc_b_private_assoc" {
+  subnet_id      = aws_subnet.vpc_b_private.id
+  route_table_id = aws_route_table.vpc_b_private.id
 }

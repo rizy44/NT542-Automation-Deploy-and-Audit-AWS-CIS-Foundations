@@ -55,3 +55,30 @@ variable "common_tags" {
   description = "Common tags to apply to compute resources."
   type        = map(string)
 }
+
+variable "peer_vpc_id" {
+  description = "Optional peer VPC ID (spoke) for test instance placement."
+  type        = string
+  default     = ""
+  nullable    = true
+}
+
+variable "peer_private_subnet_id" {
+  description = "Optional private subnet ID in the peer VPC for test instance placement."
+  type        = string
+  default     = ""
+  nullable    = true
+}
+
+variable "peer_vpc_cidr" {
+  description = "CIDR block of the peer VPC."
+  type        = string
+  default     = ""
+  nullable    = true
+}
+
+variable "create_peer_resources" {
+  description = "Whether to create peer test resources (SG and EC2) in the peer VPC."
+  type        = bool
+  default     = false
+}

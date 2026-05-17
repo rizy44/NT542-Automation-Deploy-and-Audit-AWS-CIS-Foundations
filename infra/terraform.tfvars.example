@@ -25,3 +25,15 @@ monitor_create_metric_filters     = true
 tags = {
   Repository = "terraform-cis-baseline"
 }
+
+# VPC peering example values - enable and provide real IDs when you want to create peering
+# Set enable_vpc_peering to true to create the peering and routes.
+# Enable peering when ready. Do NOT hardcode a VPC ID here if the peer
+# VPC is created by this Terraform project. Instead either:
+# - Pass the peer VPC id as a resource reference in the root module call
+#   (example in `infra/main.tf`):
+#     peer_vpc_id = aws_vpc.vpc_b.id
+#   or, if the peer is provided by another module:
+#     peer_vpc_id = module.network_b.vpc_id
+# - Use this variable only for external pre-existing VPCs.
+# VPC peering is now managed internally by the network module; no root-level values are required.

@@ -42,3 +42,18 @@ output "vpc_peering_connection_id" {
   description = "ID of the hub-to-peer VPC peering connection, if enabled."
   value       = try(aws_vpc_peering_connection.hub_to_peer[0].id, null)
 }
+
+output "vpc_b_id" {
+  description = "ID of VPC B (spoke)."
+  value       = try(aws_vpc.vpc_b.id, null)
+}
+
+output "vpc_b_private_subnet_id" {
+  description = "ID of the private subnet in VPC B."
+  value       = try(aws_subnet.vpc_b_private.id, null)
+}
+
+output "vpc_b_cidr" {
+  description = "CIDR block of VPC B."
+  value       = try(aws_vpc.vpc_b.cidr_block, null)
+}
